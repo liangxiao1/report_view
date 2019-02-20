@@ -1,0 +1,230 @@
+{% extends "bootstrap/base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}EC2 Report Viewer{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block content %}
+<style>
+  .ns-resize {
+    cursor: ns-resize;
+  }
+
+  #report_table tr.header,
+  #report_table tr:hover {
+    background-color: #f1f1f1;
+
+  }
+</style>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!--above for searching table-->
+<nav class="navbar navbar-expand-lg navbar-light " style="background-color: #e3f2fd;">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand">EC2 Report Viewer v0.01</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="{{ url_for('home',clear=1) }}">Home</a></li>
+    </ul>
+    <form class="navbar-form navbar-left">
+
+      <div class="input-group">
+        <input type="text" class="form-control" id="myInput" type="text" placeholder="Fast search in current page ...">
+        <div class="input-group-btn">
+          <button tabindex="-1" class="btn btn-default" type="button">Per Page</button>
+          <button tabindex="-1" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="per_page">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=50">50</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=100">100</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=1000">1000</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">All</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="input-group">
+
+        <input type="text" class="form-control" name="search_input" id="searchInput2" type="text"
+          placeholder="Search db from specify items ...">
+
+        <div class="input-group-btn">
+          <select name="select_item" class="custom-select form-control" id="inputGroupSelect01">
+            <option selected>Choose...</option>
+            <option value="ami_id">ami_id</option>
+            <option value="instance_type">instance_type</option>
+            <option value="instance_available_date">instance_available_date</option>
+            <option value="compose_id">compose_id</option>
+            <option value="pkg_ver">pkg_ver</option>
+            <option value="bug_id">bug_id</option>
+            <option value="branch_name">branch_name</option>
+            <option value="test_date">test_date</option>
+          </select>
+
+          <button id="btn_GO" tabindex="-1" type="button" class="btn btn-default">Go!</button>
+        </div>
+
+      </div>
+    </form>
+    <form class="navbar-form navbar-right"><a class="fa fa-github" style="font-size:24px"
+        href="https://github.com/liangxiao1/report_view"></a></form>
+  </div>
+</nav>
+<table class="table table-bordered table-striped table-condensed" id='report_table'>
+  <thead>
+    <tr class="header">
+      <th class="ns-resize" onclick="sortTable(0)">#log_id</span></th>
+      <th class="ns-resize" onclick="sortTable(1)">ami_id </th>
+      <th class="ns-resize" onclick="sortTable(2)">instance_type </th>
+      <th class="ns-resize" onclick="sortTable(3)">instance_available_date</th>
+      <th class="ns-resize" onclick="sortTable(4)">compose_id</th>
+      <th class="ns-resize" onclick="sortTable(5)">pkg_ver</th>
+      <th class="ns-resize" onclick="sortTable(6)">bug_id </th>
+      <th class="ns-resize" onclick="sortTable(7)">report_url </th>
+      <th class="ns-resize" onclick="sortTable(8)">branch_name</th>
+      <th class="ns-resize" onclick="sortTable(9)">cases_pass </th>
+      <th class="ns-resize" onclick="sortTable(10)">cases_fail </th>
+      <th class="ns-resize" onclick="sortTable(11)">cases_cancel </th>
+      <th class="ns-resize" onclick="sortTable(12)">cases_other </th>
+      <th class="ns-resize" onclick="sortTable(13)">cases_total</th>
+      <th class="ns-resize" onclick="sortTable(14)">pass_rate</th>
+      <th class="ns-resize" onclick="sortTable(15)">test_date </th>
+      <th class="ns-resize" onclick="sortTable(16)">comments </th>
+    </tr>
+  </thead>
+  <tbody id='report_body'>
+    {% for report in reports %}
+    <tr>
+      <td>{{ report.log_id }}</td>
+      <td>{{ report.ami_id }}</td>
+      <td>{{ report.instance_type }}</td>
+      <td>{{ report.instance_available_date }}</td>
+      <td>{{ report.compose_id }}</td>
+      <td>{{ report.pkg_ver }}</td>
+      <td>{{ report.bug_id }}</td>
+      <td><a href={{report.report_url}}>detail log</a></td>
+      <td>{{ report.branch_name }}</td>
+      <td>{{ report.cases_pass }}</td>
+      <td>{{ report.cases_fail }}</td>
+      <td>{{ report.cases_cancel }}</td>
+      <td>{{ report.cases_other }}</td>
+      <td>{{ report.cases_total }}</td>
+      <td>{{ report.pass_rate }}</td>
+      <td>{{ report.test_date  }}</td>
+      <td>{{ report.comments  }}</td>
+
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="pagination">
+  {{ macros.pagination_widget(pagination, '.home', per_page,query_item,query_filed) }}
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#myInput").on("keyup", function () {
+      var value = $(this).val().toLowerCase();
+      $("#report_body tr").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+    $('#per_page').change(function () {
+      this.form.submit();
+    });
+    $("select_item").on("click", "li", function () {
+      $("#select_item").val($(this).text());
+    });
+    $("#btn_GO").click(function () {
+      this.form.submit();
+    });
+
+  });
+
+  function sortTable(n) {
+    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    table = document.getElementById("report_table");
+    switching = true;
+    //Set the sorting direction to ascending:
+    dir = "asc";
+    /*Make a loop that will continue until
+    no switching has been done:*/
+    while (switching) {
+      //start by saying: no switching is done:
+      switching = false;
+      rows = table.rows;
+      /*Loop through all table rows (except the
+      first, which contains table headers):*/
+      for (i = 1; i < (rows.length - 1); i++) {
+        //start by saying there should be no switching:
+        shouldSwitch = false;
+        /*Get the two elements you want to compare,
+        one from current row and one from the next:*/
+        x = rows[i].getElementsByTagName("TD")[n];
+        y = rows[i + 1].getElementsByTagName("TD")[n];
+        /*check if the two rows should switch place,
+        based on the direction, asc or desc:*/
+        if (dir == "asc") {
+
+          if (Number(x.innerHTML.toLowerCase()) > Number(y.innerHTML.toLowerCase())) {
+            shouldSwitch = true;
+            break;
+          }
+          if (Number.isInteger(Number(x.innerHTML.toLowerCase()))) {
+            continue;
+          }
+
+          if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+            //if so, mark as a switch and break the loop:
+            shouldSwitch = true;
+            break;
+          }
+        } else if (dir == "desc") {
+
+          if (Number(x.innerHTML.toLowerCase()) < Number(y.innerHTML.toLowerCase())) {
+            shouldSwitch = true;
+            break;
+          }
+          if (Number.isInteger(Number(x.innerHTML.toLowerCase()))) {
+            continue;
+          }
+
+          if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+            //if so, mark as a switch and break the loop:
+            shouldSwitch = true;
+            break;
+          }
+        }
+      }
+      if (shouldSwitch) {
+        /*If a switch has been marked, make the switch
+        and mark that a switch has been done:*/
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+        //Each time a switch is done, increase this count by 1:
+        switchcount++;
+      } else {
+        /*If no switching has been done AND the direction is "asc",
+        set the direction to "desc" and run the while loop again.*/
+        if (switchcount == 0 && dir == "asc") {
+          dir = "desc";
+          switching = true;
+        }
+      }
+    }
+  }
+
+
+
+</script>
+
+
+{% endblock %}
