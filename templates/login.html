@@ -1,0 +1,38 @@
+{% extends "header.html" %}
+{% import "_macros.html" as macros %}
+
+
+{% block content %}
+<style>
+    .ns-resize {
+        cursor: ns-resize;
+    }
+
+    #report_table tr.header,
+    #report_table tr:hover {
+        background-color: #f1f1f1;
+
+    }
+</style>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!--above for searching table-->
+
+
+<div class="container-fluid">
+    <form method='POST' action="{{ url_for('login') }}">
+        <legend>Login For Edit - {{ msg }}</legend>
+        <div class="form-group">
+            {{ form.username.label }}: {{ form.username(size=40)}}
+        </div>
+        <div class="form-group">
+            {{ form.password.label }}: {{ form.password(size=40)}}
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+
+</div>
+{% endblock %}

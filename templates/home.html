@@ -1,9 +1,5 @@
-{% extends "bootstrap/base.html" %}
+{% extends "header.html" %}
 {% import "_macros.html" as macros %}
-{% block title %}EC2 Report Viewer{% endblock %}
-
-{% block navbar %}
-{% endblock %}
 
 {% block content %}
 <style>
@@ -23,60 +19,50 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <!--above for searching table-->
-<nav class="navbar navbar-expand-lg navbar-light " style="background-color: #e3f2fd;">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand">EC2 Report Viewer v0.01</a>
+<div class="container-fluid">
+  <form class="navbar-form navbar-left">
+
+    <div class="input-group">
+      <input type="text" class="form-control" id="myInput" type="text" placeholder="Fast search in current page ...">
+      <div class="input-group-btn">
+        <button tabindex="-1" class="btn btn-default" type="button">Per Page</button>
+        <button tabindex="-1" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+          <span class="caret"></span>
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="per_page">
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=50">50</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=100">100</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=1000">1000</a></li>
+          <li role="presentation" class="divider"></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">All</a></li>
+        </ul>
+      </div>
     </div>
-    <ul class="nav navbar-nav">
-      <li class="active"><a href="{{ url_for('home',clear=1) }}">Home</a></li>
-    </ul>
-    <form class="navbar-form navbar-left">
+    <div class="input-group">
 
-      <div class="input-group">
-        <input type="text" class="form-control" id="myInput" type="text" placeholder="Fast search in current page ...">
-        <div class="input-group-btn">
-          <button tabindex="-1" class="btn btn-default" type="button">Per Page</button>
-          <button tabindex="-1" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-          <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="per_page">
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=50">50</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=100">100</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=1000">1000</a></li>
-            <li role="presentation" class="divider"></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">All</a></li>
-          </ul>
-        </div>
+      <input type="text" class="form-control" name="search_input" id="searchInput2" type="text"
+        placeholder="Search db from specify items ...">
+
+      <div class="input-group-btn">
+        <select name="select_item" class="custom-select form-control" id="inputGroupSelect01">
+          <option selected>Choose...</option>
+          <option value="ami_id">ami_id</option>
+          <option value="instance_type">instance_type</option>
+          <option value="instance_available_date">instance_available_date</option>
+          <option value="compose_id">compose_id</option>
+          <option value="pkg_ver">pkg_ver</option>
+          <option value="bug_id">bug_id</option>
+          <option value="branch_name">branch_name</option>
+          <option value="test_date">test_date</option>
+        </select>
+
+        <button id="btn_GO" tabindex="-1" type="button" class="btn btn-default">Go!</button>
       </div>
-      <div class="input-group">
 
-        <input type="text" class="form-control" name="search_input" id="searchInput2" type="text"
-          placeholder="Search db from specify items ...">
-
-        <div class="input-group-btn">
-          <select name="select_item" class="custom-select form-control" id="inputGroupSelect01">
-            <option selected>Choose...</option>
-            <option value="ami_id">ami_id</option>
-            <option value="instance_type">instance_type</option>
-            <option value="instance_available_date">instance_available_date</option>
-            <option value="compose_id">compose_id</option>
-            <option value="pkg_ver">pkg_ver</option>
-            <option value="bug_id">bug_id</option>
-            <option value="branch_name">branch_name</option>
-            <option value="test_date">test_date</option>
-          </select>
-
-          <button id="btn_GO" tabindex="-1" type="button" class="btn btn-default">Go!</button>
-        </div>
-
-      </div>
-    </form>
-    <form class="navbar-form navbar-right"><a class="fa fa-github" style="font-size:24px"
-        href="https://github.com/liangxiao1/report_view"></a></form>
-  </div>
-</nav>
+    </div>
+  </form>
+</div>
 <table class="table table-bordered table-striped table-condensed" id='report_table'>
   <thead>
     <tr class="header">
@@ -97,6 +83,7 @@
       <th class="ns-resize" onclick="sortTable(14)">pass_rate</th>
       <th class="ns-resize" onclick="sortTable(15)">test_date </th>
       <th class="ns-resize" onclick="sortTable(16)">comments </th>
+      <th class="ns-resize">Edit </th>
     </tr>
   </thead>
   <tbody id='report_body'>
@@ -119,6 +106,8 @@
       <td>{{ report.pass_rate }}</td>
       <td>{{ report.test_date  }}</td>
       <td>{{ report.comments  }}</td>
+      <td><a href="{{ url_for('update_item',log_id=report.log_id) }}"><span class='glyphicon glyphicon-edit'></span></a>
+      </td>
 
     </tr>
     {% endfor %}

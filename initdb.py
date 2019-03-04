@@ -32,6 +32,15 @@ class Report(Base):
     sqlite_autoincrement = True
 
 
+class User(Base):
+    __tablename__ = 'user_info'
+
+    userid = Column(Integer, primary_key=True)
+    username = Column(String)
+    password = Column(String)
+    sqlite_autoincrement = True
+
+
 Base.metadata.create_all(db_engine)
 '''
 conn = sqlite3.connect('report_data.db')

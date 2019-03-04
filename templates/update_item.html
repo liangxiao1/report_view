@@ -1,0 +1,123 @@
+{% extends "header.html" %}
+{% import "_macros.html" as macros %}
+
+
+{% block content %}
+<style>
+  .ns-resize {
+    cursor: ns-resize;
+  }
+
+  #report_table tr.header,
+  #report_table tr:hover {
+    background-color: #f1f1f1;
+
+  }
+</style>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+
+<div class="container-fluid">
+  <form class="form-horizontal " action="{{ url_for('update_item') }}" method="post">
+    <legend>Update item - {{form.log_id.data}} {{msg}}</legend>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.log_id.label }}:</label>
+
+      <div class="col-sm-10">
+        {{ form.log_id.data }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.ami_id.label }}:</label>
+      <div class="col-sm-10">{{ form.ami_id.data }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.instance_type .label }}:</label>
+      <div class="col-sm-10">{{ form.instance_type.data }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.compose_id.label }}:</label>
+      <div class="col-sm-10">{{ form.compose_id(size=40) }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.instance_available_date.label }}:</label>
+      <div class="col-sm-10">{{ form.instance_available_date(size=40) }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.pkg_ver.label }}:</label>
+      <div class="col-sm-10">{{ form.pkg_ver.data}}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.bug_id.label }}:</label>
+      <div class="col-sm-10">{{ form.bug_id(size=40) }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.report_url.label }}:</label>
+      <div class="col-sm-10">{{ form.report_url(size=40) }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.branch_name.label }}:</label>
+      <div class="col-sm-10"> {{ form.branch_name(size=40) }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.cases_pass.label }}:</label>
+      <div class="col-sm-10">{{ form.cases_pass.data }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.cases_fail.label }}:</label>
+      <div class="col-sm-10">{{ form.cases_fail.data}}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.cases_cancel.label }}:</label>
+      <div class="col-sm-10">{{ form.cases_cancel.data }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.cases_other.label }}:</label>
+      <div class="col-sm-10">{{ form.cases_other.data }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.cases_total.label }}:</label>
+      <div class="col-sm-10"> {{ form.cases_total.data }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.pass_rate.label }}:</label>
+      <div class="col-sm-10">{{ form.pass_rate.data }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label"> {{ form.test_date.label }}:</label>
+      <div class="col-sm-10">{{ form.test_date.data }}</div>
+
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-form-label">{{ form.comments.label }}:</label>
+      <div class="col-sm-10">{{ form.comments(size=40) }}</div>
+
+    </div>
+    <div class="form-group">
+      <button type="submit" class="btn btn-default">Update</button>
+    </div>
+  </form>
+
+</div>
+
+
+
+{% endblock %}
