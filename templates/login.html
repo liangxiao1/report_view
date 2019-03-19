@@ -1,5 +1,5 @@
 {% extends "header.html" %}
-{% import "_macros.html" as macros %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 
 {% block content %}
@@ -20,19 +20,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <!--above for searching table-->
-
-
-<div class="container-fluid">
-    <form method='POST' action="{{ url_for('login') }}">
-        <legend>Login For Edit - {{ msg }}</legend>
-        <div class="form-group">
-            {{ form.username.label }}: {{ form.username(size=40)}}
-        </div>
-        <div class="form-group">
-            {{ form.password.label }}: {{ form.password(size=40)}}
-        </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-
-</div>
+<div class="container">
+    <legend>Login For Update</legend>
+    {{ wtf.quick_form(form,form_type="horizontal",horizontal_columns=('lg', 1, 2),action=url_for('login')) }}
+</div>>
 {% endblock %}

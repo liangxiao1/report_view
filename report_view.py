@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from flask import Flask, render_template, request, jsonify, session, url_for, redirect
+from flask import Flask, render_template, request, jsonify, session, url_for, redirect, flash
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3 as sql
@@ -11,7 +11,7 @@ from flask_sqlalchemy import BaseQuery
 from sqlalchemy import or_
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextField, PasswordField
+from wtforms import StringField, TextField, PasswordField, SubmitField, TextAreaField
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///report_data.db'
@@ -24,28 +24,31 @@ report_db.init_app(app)
 
 
 class UpdateItem(FlaskForm):
-    log_id = TextField('log_id')
-    ami_id = TextField('ami_id')
-    instance_type = TextField('instance_type')
-    compose_id = TextField('compose_id')
+    log_id = TextField('log_id', render_kw={
+                       'readonly': True, 'class': "col-sm-10"})
+    ami_id = TextField('ami_id', render_kw={'readonly': True})
+    instance_type = TextField('instance_type', render_kw={'readonly': True})
+    compose_id = TextField('compose_id', render_kw={'readonly': True})
     instance_available_date = TextField('instance_available_date')
-    pkg_ver = TextField('pkg_ver')
+    pkg_ver = TextField('pkg_ver', render_kw={'readonly': True})
     bug_id = TextField('bug_id')
     report_url = TextField('report_url')
     branch_name = TextField('branch_name')
-    cases_pass = TextField('cases_pass')
-    cases_fail = TextField('cases_fail')
-    cases_cancel = TextField('cases_cancel')
-    cases_other = TextField('cases_other')
-    cases_total = TextField('cases_total')
-    pass_rate = TextField('pass_rate')
-    test_date = TextField('test_date')
-    comments = TextField('comments')
+    cases_pass = TextField('cases_pass', render_kw={'readonly': True})
+    cases_fail = TextField('cases_fail', render_kw={'readonly': True})
+    cases_cancel = TextField('cases_cancel', render_kw={'readonly': True})
+    cases_other = TextField('cases_other', render_kw={'readonly': True})
+    cases_total = TextField('cases_total', render_kw={'readonly': True})
+    pass_rate = TextField('pass_rate', render_kw={'readonly': True})
+    test_date = TextField('test_date', render_kw={'readonly': True})
+    comments = TextAreaField('comments')
+    submit = SubmitField("Update")
 
 
 class LoginForm(FlaskForm):
     username = TextField('UserName')
     password = PasswordField('Password')
+    submit = SubmitField("Login")
 
 
 class User(report_db.Model):
@@ -91,7 +94,13 @@ def home():
     query_item = request.args.get('select_item')
     clear_session = request.args.get('clear', 0, type=int)
     if clear_session == 1:
-        session.clear()
+        if session.has_key('username'):
+            username = session['username']
+            session.clear()
+            session['username'] = username
+        else:
+            session.clear()
+
         query_obj = None
     else:
         if query_item is None and session.has_key("query_item"):
@@ -192,6 +201,7 @@ def update_item():
             msg = "Saved successfully!"
         except Exception as err:
             msg = "Saved failed!"
+        flash(msg, 'warning')
 
         Report.query.filter(Report.log_id == log_id)
         item_form.log_id.data = log_id
@@ -229,8 +239,8 @@ def login():
     if request.method == 'POST':
         username = login_form.username.data
         password = login_form.password.data
-        print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
-        print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
+        #print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
+        #print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
         hs = generate_password_hash('redhat')
         if check_password_hash(hs, 'redhat'):
             print('ok')
@@ -241,12 +251,17 @@ def login():
             user = User.query.filter(User.username == username).first()
         except Exception as err:
             msg = 'Cannot get user info!'
-            return render_template('login.html', form=login_form, msg=msg)
+            flash(msg, 'warning')
+            return render_template('login.html', form=login_form)
         if user == None:
-            return render_template('login.html', form=login_form, msg='User not found!')
+            msg = 'Cannot get user info!'
+            flash(msg, 'warning')
+            return render_template('login.html', form=login_form)
         #hash_password = generate_password_hash(password)
         if not check_password_hash(user.password, password):
-            return render_template('login.html', form=login_form, msg='Password not correct!')
+            msg = 'Password not correct!'
+            flash(msg, 'warning')
+            return render_template('login.html', form=login_form)
         else:
             session['username'] = username
             return redirect(url_for('home'))
