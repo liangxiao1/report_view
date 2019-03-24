@@ -191,16 +191,32 @@ def update_item():
         item_form.comments.data = report_list[0].comments
         return render_template('update_item.html', form=item_form)
     if request.method == 'POST':
-        print(item_form.comments.data)
 
         try:
             report = Report.query.filter(Report.log_id == log_id).first()
+
+            report.ami_id = item_form.ami_id.data
+            report.instance_type = item_form.instance_type.data
+            report.compose_id = item_form.compose_id.data
+            report.instance_available_date = item_form.instance_available_date.data
+            report.pkg_ver = item_form.pkg_ver.data
+            report.bug_id = item_form.bug_id.data
+            report.report_url = item_form.report_url.data
+            report.branch_name = item_form.branch_name.data
+            report.cases_pass = item_form.cases_pass.data
+            report.cases_fail = item_form.cases_fail.data
+            report.cases_cancel = item_form.cases_cancel.data
+            report.cases_other = item_form.cases_other.data
+            report.cases_total = item_form.cases_total.data
+            report.pass_rate = item_form.pass_rate.data
+            report.test_date = item_form.test_date.data
             report.comments = item_form.comments.data
 
             report_db.session.commit()
             msg = "Saved successfully!"
         except Exception as err:
             msg = "Saved failed!"
+            print(err)
         flash(msg, 'warning')
 
         Report.query.filter(Report.log_id == log_id)
