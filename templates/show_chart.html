@@ -1,0 +1,28 @@
+{% extends "header.html" %}
+
+{% block content %}
+<style>
+  .ns-resize {
+    cursor: ns-resize;
+  }
+
+  #report_table tr.header,
+  #report_table tr:hover {
+    background-color: #f1f1f1;
+
+  }
+</style>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<div class="container">
+  {{ charts_init }}
+  <legend> Analyze instance types coverage:</legend>
+  {{ charts.instance_coverage }}
+  <br></br>
+  <legend>Analyze pass rate:</legend>
+  {{ charts.caserate}}
+  <br></br>
+  <legend>Analyze cases count:</legend>
+  {{ charts.caseschart}}
+</div>
+{% endblock %}

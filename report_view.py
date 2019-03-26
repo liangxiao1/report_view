@@ -13,6 +13,10 @@ from sqlalchemy import or_
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextField, PasswordField, SubmitField, TextAreaField
 
+from bs4 import BeautifulSoup
+import urllib2
+from flask_googlecharts import GoogleCharts, ColumnChart, BarChart, LineChart
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///report_data.db'
 
@@ -21,6 +25,8 @@ app.secret_key = 'development key'
 
 report_db = SQLAlchemy(app)
 report_db.init_app(app)
+
+charts = GoogleCharts(app)
 
 
 class UpdateItem(FlaskForm):
@@ -255,8 +261,8 @@ def login():
     if request.method == 'POST':
         username = login_form.username.data
         password = login_form.password.data
-        #print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
-        #print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
+        # print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
+        # print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
         hs = generate_password_hash('redhat')
         if check_password_hash(hs, 'redhat'):
             print('ok')
@@ -273,7 +279,7 @@ def login():
             msg = 'Cannot get user info!'
             flash(msg, 'warning')
             return render_template('login.html', form=login_form)
-        #hash_password = generate_password_hash(password)
+        # hash_password = generate_password_hash(password)
         if not check_password_hash(user.password, password):
             msg = 'Password not correct!'
             flash(msg, 'warning')
@@ -281,6 +287,83 @@ def login():
         else:
             session['username'] = username
             return redirect(url_for('home'))
+
+
+@app.route('/show_chart')
+def show_chart():
+
+    ec2_source_url = 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html'
+    ec2_sock = urllib2.urlopen(ec2_source_url)
+    ec2_data = ec2_sock.read()
+    ec2_sock.close()
+    ec2_soup = BeautifulSoup(ec2_data)
+    ec2_instances = ec2_soup.findAll('code', {'class': 'code'})
+    ec2_instances_tmp_list = map(lambda x: x.text, ec2_instances)
+    ec2_instances_list = []
+    for i in ec2_instances_tmp_list:
+        if ec2_instances_list.count(i) == 0:
+            ec2_instances_list.append(i)
+    ec2_chart = LineChart("instance_coverage", options={
+        'title': 'Instance Types Coverage Status',"height": 500})
+
+    report_list = Report.query.order_by(Report.log_id).all()
+    instance_coverdict = {}
+    for report in report_list:
+        if instance_coverdict.has_key(report.instance_type):
+            instance_coverdict[report.instance_type] += 1
+        else:
+            instance_coverdict[report.instance_type] = 0
+    chart_data = []
+    for instance in ec2_instances_list:
+        if instance_coverdict.has_key(instance):
+            chart_data.append([instance, instance_coverdict[instance]])
+        else:
+            chart_data.append([instance, 0])
+    for instance in instance_coverdict.keys():
+        if ec2_instances_list.count(instance) == 0:
+            chart_data.append([instance, instance_coverdict[instance]])
+    sorted_chart_data = sorted(
+        chart_data, key=lambda instance_type: instance_type[0])
+    ec2_chart.add_column("string", "Instance Types")
+    ec2_chart.add_column("number", "Test Times")
+    ec2_chart.add_rows(sorted_chart_data)
+    charts.register(ec2_chart)
+
+    ec2_case_rate = LineChart("caserate", options={
+        'title': 'Case Pass Rate Report',"height": 500})
+    case_data = []
+    for report in report_list:
+        case_data.append([report.test_date, report.pass_rate])
+    sorted_case_data = sorted(case_data, key=lambda test_date: test_date[0])
+    ec2_case_rate.add_column("string", "Test Date")
+    ec2_case_rate.add_column("number", "Pass Rate")
+    ec2_case_rate.add_rows(sorted_case_data)
+    charts.register(ec2_case_rate)
+
+    ec2_cases_chart = LineChart("caseschart", options={
+        'title': 'Cases Count',"height": 500})
+    cases_total_data = []
+    cases_data = []
+    for report in report_list:
+        cases_data.append([report.test_date, report.cases_total,report.cases_pass,report.cases_fail,report.cases_other,report.cases_other])
+    sorted_cases_data = sorted(
+        cases_data, key=lambda test_date: test_date[0])
+    ec2_cases_chart.add_column("string", "Test Date")
+    ec2_cases_chart.add_column("number", "Total")
+    ec2_cases_chart.add_column("number", "Pass")
+    ec2_cases_chart.add_column("number", "Fail")
+    ec2_cases_chart.add_column("number", "Other")
+    ec2_cases_chart.add_column("number", "Skip/Cancel")
+    ec2_cases_chart.add_rows(sorted_cases_data)
+    charts.register(ec2_cases_chart)
+
+    # charts.register(ec2_chart)
+    # url_for('show_chart')
+
+    return render_template('show_chart.html')
+
+    # ec2_chart=ColumnChart("instance_coverage", options={
+    #                        'title': 'Instance Types Coverage Status'}, data_url=url_for('show_chart'))
 
 
 if __name__ == '__main__':
