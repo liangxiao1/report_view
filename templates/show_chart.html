@@ -16,13 +16,21 @@
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <div class="container">
   {{ charts_init }}
+  {% if categary == "ins_cov" %}
   <legend> Analyze instance types coverage:</legend>
   {{ charts.instance_coverage }}
   <br></br>
+  {% elif categary == "case_pass" %}
   <legend>Analyze pass rate:</legend>
   {{ charts.caserate}}
   <br></br>
-  <legend>Analyze cases count:</legend>
+  {% elif categary == "case_run" %}
+  <legend>Analyze cases status in each run:</legend>
   {{ charts.caseschart}}
+  {% elif categary == "case_day" %}
+  <legend>Analyze cases run per day:</legend>
+  {{ charts.casesperday}}
+  {% endif %}
+
 </div>
 {% endblock %}

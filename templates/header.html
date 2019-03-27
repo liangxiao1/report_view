@@ -11,9 +11,17 @@
         </div>
         <ul class="nav navbar-nav">
             <li class="active"><a href="{{ url_for('home',clear=1) }}">Home</a></li>
-        </ul>
-        <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ url_for('show_chart') }}">Diag Chart</a></li>
+
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">DiagChart
+                    <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('show_chart',categary='ins_cov') }}">Instance Coverage</a></li>
+                    <li><a href="{{ url_for('show_chart',categary='case_day') }}">Cases Per Day</a></li>
+                    <li><a href="{{ url_for('show_chart',categary='case_run') }}">Cases Per Run</a></li>
+                    <li><a href="{{ url_for('show_chart',categary='case_pass') }}">Cases Pass Ratio</a></li>
+                </ul>
+            </li>
         </ul>
         <form class="navbar-form navbar-right"><a class="fa fa-github" style="font-size:24px"
                 href="https://github.com/liangxiao1/report_view"></a></form>

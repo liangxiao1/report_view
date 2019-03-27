@@ -28,6 +28,10 @@ report_db.init_app(app)
 
 charts = GoogleCharts(app)
 
+from datetime import timedelta, date, datetime
+def daterange(date1, date2):
+    for n in range(int ((date2 - date1).days)+1):
+        yield date1 + timedelta(n)
 
 class UpdateItem(FlaskForm):
     log_id = TextField('log_id', render_kw={
@@ -292,75 +296,123 @@ def login():
 @app.route('/show_chart')
 def show_chart():
 
-    ec2_source_url = 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html'
-    ec2_sock = urllib2.urlopen(ec2_source_url)
-    ec2_data = ec2_sock.read()
-    ec2_sock.close()
-    ec2_soup = BeautifulSoup(ec2_data)
-    ec2_instances = ec2_soup.findAll('code', {'class': 'code'})
-    ec2_instances_tmp_list = map(lambda x: x.text, ec2_instances)
-    ec2_instances_list = []
-    for i in ec2_instances_tmp_list:
-        if ec2_instances_list.count(i) == 0:
-            ec2_instances_list.append(i)
-    ec2_chart = LineChart("instance_coverage", options={
-        'title': 'Instance Types Coverage Status',"height": 500})
-
+    categary=request.args.get('categary','case_day',type=str)
     report_list = Report.query.order_by(Report.log_id).all()
-    instance_coverdict = {}
-    for report in report_list:
-        if instance_coverdict.has_key(report.instance_type):
-            instance_coverdict[report.instance_type] += 1
-        else:
-            instance_coverdict[report.instance_type] = 0
-    chart_data = []
-    for instance in ec2_instances_list:
-        if instance_coverdict.has_key(instance):
-            chart_data.append([instance, instance_coverdict[instance]])
-        else:
-            chart_data.append([instance, 0])
-    for instance in instance_coverdict.keys():
-        if ec2_instances_list.count(instance) == 0:
-            chart_data.append([instance, instance_coverdict[instance]])
-    sorted_chart_data = sorted(
-        chart_data, key=lambda instance_type: instance_type[0])
-    ec2_chart.add_column("string", "Instance Types")
-    ec2_chart.add_column("number", "Test Times")
-    ec2_chart.add_rows(sorted_chart_data)
-    charts.register(ec2_chart)
+    if categary == 'ins_cov':
+        ec2_source_url = 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html'
+        ec2_sock = urllib2.urlopen(ec2_source_url)
+        ec2_data = ec2_sock.read()
+        ec2_sock.close()
+        ec2_soup = BeautifulSoup(ec2_data)
+        ec2_instances = ec2_soup.findAll('code', {'class': 'code'})
+        ec2_instances_tmp_list = map(lambda x: x.text, ec2_instances)
+        ec2_instances_list = []
+        for i in ec2_instances_tmp_list:
+            if ec2_instances_list.count(i) == 0:
+                ec2_instances_list.append(i)
+        ec2_chart = LineChart("instance_coverage", options={
+            'title': 'Instance Types Coverage Status',"height": 500})
+        instance_coverdict = {}
+        for report in report_list:
+            if instance_coverdict.has_key(report.instance_type):
+                instance_coverdict[report.instance_type] += 1
+            else:
+                instance_coverdict[report.instance_type] = 1
+        chart_data = []
+        for instance in ec2_instances_list:
+            if instance_coverdict.has_key(instance):
+                chart_data.append([instance, instance_coverdict[instance]])
+            else:
+                chart_data.append([instance, 0])
+        for instance in instance_coverdict.keys():
+            if ec2_instances_list.count(instance) == 0:
+                chart_data.append([instance, instance_coverdict[instance]])
+        sorted_chart_data = sorted(
+            chart_data, key=lambda instance_type: instance_type[0])
+        ec2_chart.add_column("string", "Instance Types")
+        ec2_chart.add_column("number", "Test Times")
+        ec2_chart.add_rows(sorted_chart_data)
+        charts.register(ec2_chart)
 
-    ec2_case_rate = LineChart("caserate", options={
-        'title': 'Case Pass Rate Report',"height": 500})
-    case_data = []
-    for report in report_list:
-        case_data.append([report.test_date, report.pass_rate])
-    sorted_case_data = sorted(case_data, key=lambda test_date: test_date[0])
-    ec2_case_rate.add_column("string", "Test Date")
-    ec2_case_rate.add_column("number", "Pass Rate")
-    ec2_case_rate.add_rows(sorted_case_data)
-    charts.register(ec2_case_rate)
+    if categary == 'case_pass':
+        ec2_case_rate = LineChart("caserate", options={
+            'title': 'Case Pass Rate Report',"height": 500})
+        case_data = []
+        for report in report_list:
+            case_data.append([report.test_date, report.pass_rate])
+        sorted_case_data = sorted(case_data, key=lambda test_date: test_date[0])
+        ec2_case_rate.add_column("string", "Test Date")
+        ec2_case_rate.add_column("number", "Pass Rate")
+        ec2_case_rate.add_rows(sorted_case_data)
+        charts.register(ec2_case_rate)
 
-    ec2_cases_chart = LineChart("caseschart", options={
-        'title': 'Cases Count',"height": 500})
-    cases_total_data = []
-    cases_data = []
-    for report in report_list:
-        cases_data.append([report.test_date, report.cases_total,report.cases_pass,report.cases_fail,report.cases_other,report.cases_other])
-    sorted_cases_data = sorted(
-        cases_data, key=lambda test_date: test_date[0])
-    ec2_cases_chart.add_column("string", "Test Date")
-    ec2_cases_chart.add_column("number", "Total")
-    ec2_cases_chart.add_column("number", "Pass")
-    ec2_cases_chart.add_column("number", "Fail")
-    ec2_cases_chart.add_column("number", "Other")
-    ec2_cases_chart.add_column("number", "Skip/Cancel")
-    ec2_cases_chart.add_rows(sorted_cases_data)
-    charts.register(ec2_cases_chart)
+    if categary == 'case_run':
+        ec2_cases_chart = LineChart("caseschart", options={
+            'title': 'Cases Count',"height": 500})
+        cases_total_data = []
+        cases_data = []
+        for report in report_list:
+            cases_data.append([report.test_date, report.cases_total,report.cases_pass,report.cases_fail,report.cases_other,report.cases_cancel])
+        sorted_cases_data = sorted(
+            cases_data, key=lambda test_date: test_date[0])
+        ec2_cases_chart.add_column("string", "Test Date")
+        ec2_cases_chart.add_column("number", "Total")
+        ec2_cases_chart.add_column("number", "Pass")
+        ec2_cases_chart.add_column("number", "Fail")
+        ec2_cases_chart.add_column("number", "Other")
+        ec2_cases_chart.add_column("number", "Skip/Cancel")
+        ec2_cases_chart.add_rows(sorted_cases_data)
+        charts.register(ec2_cases_chart)
+
+    if categary == 'case_day':
+
+        ec2_cases_day = LineChart("casesperday", options={
+            'title': 'Cases Run Per Day',"height": 500})
+        cases_per_day = []
+        for report in report_list:
+            is_new=True
+            #cases_data.append([report.test_date, report.cases_total,report.cases_pass,report.cases_fail,report.cases_other,report.cases_cancel])
+            for case in cases_per_day:
+                if case[0] == report.test_date:
+                    case[1]+=report.cases_total
+                    case[2]+=report.cases_pass
+                    case[3]+=report.cases_fail
+                    case[4]+=report.cases_other
+                    case[5]+=report.cases_cancel
+                    is_new=False
+                    break
+            if is_new:
+                cases_per_day.append([report.test_date, report.cases_total,report.cases_pass,report.cases_fail,report.cases_other,report.cases_cancel])
+        sorted_cases_per_day = sorted(
+            cases_per_day, key=lambda test_date: test_date[0])
+        start_date = datetime.strptime(sorted_cases_per_day[0][0],'%Y-%m-%d').date()
+        end_date = date.today()
+        #print(end_date)
+        days_list=[]
+        for dt in daterange(start_date, end_date):
+            day=dt.strftime("%Y-%m-%d")
+            is_new=True
+            for item in sorted_cases_per_day:
+                if item[0] == day:
+                    days_list.append(item)
+                    is_new=False
+                    break
+            if is_new:
+                days_list.append([dt.strftime("%Y-%m-%d"),0,0,0,0,0])
+
+        ec2_cases_day.add_column("string", "Test Date")
+        ec2_cases_day.add_column("number", "Total")
+        ec2_cases_day.add_column("number", "Pass")
+        ec2_cases_day.add_column("number", "Fail")
+        ec2_cases_day.add_column("number", "Other")
+        ec2_cases_day.add_column("number", "Skip/Cancel")
+        ec2_cases_day.add_rows(days_list)
+        charts.register(ec2_cases_day)
 
     # charts.register(ec2_chart)
     # url_for('show_chart')
 
-    return render_template('show_chart.html')
+    return render_template('show_chart.html',categary=categary)
 
     # ec2_chart=ColumnChart("instance_coverage", options={
     #                        'title': 'Instance Types Coverage Status'}, data_url=url_for('show_chart'))
