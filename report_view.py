@@ -3,15 +3,11 @@ from flask import Flask, render_template, request, jsonify, session, url_for, re
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3 as sql
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String
-
-from flask_sqlalchemy import Pagination
-from flask_sqlalchemy import BaseQuery
-from sqlalchemy import or_
+from flask_sqlalchemy import BaseQuery, Pagination, SQLAlchemy
+from sqlalchemy import Column, Integer, String, or_
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextField, PasswordField, SubmitField, TextAreaField
+from wtforms import StringField, TextField, PasswordField, SubmitField, TextAreaField, SelectField
 
 from bs4 import BeautifulSoup
 import urllib2
@@ -69,6 +65,13 @@ class User(report_db.Model):
     password = Column(String)
     sqlite_autoincrement = True
 
+
+class SearchForm(FlaskForm):
+    search_input = TextField('', render_kw={"placeholder": "Filter by what?"})
+    select_item = SelectField('', choices = [('ami_id', 'ami_id'), 
+      ('instance_type', 'instance_type'),('compose_id','compose_id'),('pkg_ver','pkg_ver'),
+      ('bug_id','bug_id'),('branch_name','branch_name'),('test_date','test_date'),('instance_available_date','instance_available_date')])
+    submit = SubmitField("Go!")
 
 class Report(report_db.Model):
     __tablename__ = 'report_info'
@@ -293,11 +296,55 @@ def login():
             return redirect(url_for('home'))
 
 
-@app.route('/show_chart')
+@app.route('/show_chart',methods=['GET','POST'])
 def show_chart():
+    search_form=SearchForm()
+    query_obj=None
+    query_filed = search_form.search_input.data
+    query_item =  search_form.select_item.data
+    
+    if request.method=='GET':
+        query_filed = request.args.get('search_input')
+        query_item = request.args.get('select_item')
+    if query_item is None and session.has_key("query_item"):
+        query_item = session['query_item']
+        query_filed = session['query_filed']
+    elif query_item is not None:
+        session['query_item'] = query_item
+        session['query_filed'] = query_filed
+    try:
+        if 'ami_id' in query_item:
+            query_obj = Report.ami_id
+        elif 'instance_type' in query_item:
+            query_obj = Report.instance_type
+        elif 'instance_available_date' in query_item:
+            query_obj = Report.instance_available_date
+        elif 'compose_id' in query_item:
+            query_obj = Report.compose_id
+        elif 'pkg_ver' in query_item:
+            query_obj = Report.pkg_ver
+        elif 'bug_id' in query_item:
+            query_obj = Report.bug_id
+        elif 'branch_name' in query_item:
+            query_obj = Report.branch_name
+        elif 'test_date' in query_item:
+            query_obj = Report.test_date
+        else:
+            query_obj = None
+    except Exception as err:
+        query_obj = None
+    
+    if query_obj is not None:
+        filter_item = query_obj.like("%"+query_filed+"%")
+        report_list = Report.query.filter(or_(filter_item)).order_by(
+            Report.log_id.desc()).all()
+        #print('query_obj:%s query_filed:%s find%s'%(query_obj,query_filed,report_list))
+    else: 
+        report_list = Report.query.order_by(Report.log_id.desc()).all()
+        #print('query_obj:%s query_filed:%s find%s'%(query_obj,query_filed,report_list))
 
     categary=request.args.get('categary','case_day',type=str)
-    report_list = Report.query.order_by(Report.log_id).all()
+    #report_list = Report.query.order_by(Report.log_id).all()
     if categary == 'ins_cov':
         ec2_source_url = 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html'
         ec2_sock = urllib2.urlopen(ec2_source_url)
@@ -329,6 +376,8 @@ def show_chart():
                 chart_data.append([instance, instance_coverdict[instance]])
         sorted_chart_data = sorted(
             chart_data, key=lambda instance_type: instance_type[0])
+        if len(sorted_chart_data) == 0:
+            flash("No result found!")
         ec2_chart.add_column("string", "Instance Types")
         ec2_chart.add_column("number", "Test Times")
         ec2_chart.add_rows(sorted_chart_data)
@@ -341,6 +390,8 @@ def show_chart():
         for report in report_list:
             case_data.append([report.test_date, report.pass_rate])
         sorted_case_data = sorted(case_data, key=lambda test_date: test_date[0])
+        if len(sorted_case_data) == 0:
+            flash("No result found!")
         ec2_case_rate.add_column("string", "Test Date")
         ec2_case_rate.add_column("number", "Pass Rate")
         ec2_case_rate.add_rows(sorted_case_data)
@@ -355,6 +406,8 @@ def show_chart():
             cases_data.append([report.test_date, report.cases_total,report.cases_pass,report.cases_fail,report.cases_other,report.cases_cancel])
         sorted_cases_data = sorted(
             cases_data, key=lambda test_date: test_date[0])
+        if len(sorted_cases_data) == 0:
+            flash("No result found!")
         ec2_cases_chart.add_column("string", "Test Date")
         ec2_cases_chart.add_column("number", "Total")
         ec2_cases_chart.add_column("number", "Pass")
@@ -385,20 +438,23 @@ def show_chart():
                 cases_per_day.append([report.test_date, report.cases_total,report.cases_pass,report.cases_fail,report.cases_other,report.cases_cancel])
         sorted_cases_per_day = sorted(
             cases_per_day, key=lambda test_date: test_date[0])
-        start_date = datetime.strptime(sorted_cases_per_day[0][0],'%Y-%m-%d').date()
-        end_date = date.today()
-        #print(end_date)
         days_list=[]
-        for dt in daterange(start_date, end_date):
-            day=dt.strftime("%Y-%m-%d")
-            is_new=True
-            for item in sorted_cases_per_day:
-                if item[0] == day:
-                    days_list.append(item)
-                    is_new=False
-                    break
-            if is_new:
-                days_list.append([dt.strftime("%Y-%m-%d"),0,0,0,0,0])
+        if len(sorted_cases_per_day) == 0:
+            flash("No result found!")
+        else:
+            start_date = datetime.strptime(sorted_cases_per_day[0][0],'%Y-%m-%d').date()
+            end_date = date.today()
+            #print(end_date)
+            for dt in daterange(start_date, end_date):
+                day=dt.strftime("%Y-%m-%d")
+                is_new=True
+                for item in sorted_cases_per_day:
+                    if item[0] == day:
+                        days_list.append(item)
+                        is_new=False
+                        break
+                if is_new:
+                    days_list.append([dt.strftime("%Y-%m-%d"),0,0,0,0,0])
 
         ec2_cases_day.add_column("string", "Test Date")
         ec2_cases_day.add_column("number", "Total")
@@ -408,11 +464,12 @@ def show_chart():
         ec2_cases_day.add_column("number", "Skip/Cancel")
         ec2_cases_day.add_rows(days_list)
         charts.register(ec2_cases_day)
+    
+    #if request.method == 'GET':
+    #    return redirect(url_for('show_chart',categary=categary,select_item=query_item, search_input=query_filed))
 
-    # charts.register(ec2_chart)
-    # url_for('show_chart')
-
-    return render_template('show_chart.html',categary=categary)
+    return render_template('show_chart.html',categary=categary,select_item=query_item, search_input=query_filed,form=search_form)
+    #return redirect(url_for('show_chart',categary=categary,select_item=query_item, search_input=query_filed))
 
     # ec2_chart=ColumnChart("instance_coverage", options={
     #                        'title': 'Instance Types Coverage Status'}, data_url=url_for('show_chart'))

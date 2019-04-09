@@ -1,13 +1,14 @@
 {% extends "bootstrap/base.html" %}
 {% import "_macros.html" as macros %}
 {% import "bootstrap/utils.html" as utils %}
+{% import "bootstrap/wtf.html" as wtf %}
 {% block title %}EC2 Report Viewer{% endblock %}
 
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-light " style="background-color: #e3f2fd;">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand">EC2 Report Viewer v0.02</a>
+            <a class="navbar-brand">EC2 Report Viewer v0.03</a>
         </div>
         <ul class="nav navbar-nav">
             <li class="active"><a href="{{ url_for('home',clear=1) }}">Home</a></li>
@@ -22,7 +23,65 @@
                     <li><a href="{{ url_for('show_chart',categary='case_pass') }}">Cases Pass Ratio</a></li>
                 </ul>
             </li>
+            <li>
+                {% if 'show_chart' in request.path %}
+                {{ wtf.quick_form(form,form_type="inline",horizontal_columns=('sm', 0, 0),extra_classes="input-group navbar-form navbar-left") }}
+            <li>
+                <a
+                    href="{{ url_for('show_chart',categary=categary,select_item=select_item,search_input=search_input) }}">
+                    ShareLink<span class=" glyphicon glyphicon-link"></span></a>
+            </li>
+            {% else %}
+            <form class="navbar-form navbar-left">
+
+                <div class="input-group">
+                    <input type="text" class="form-control" id="myInput" type="text"
+                        placeholder="Fast search in current page ...">
+                    <div class="input-group-btn">
+                        <button tabindex="-1" class="btn btn-default" type="button">Per Page</button>
+                        <button tabindex="-1" data-toggle="dropdown" class="btn btn-default dropdown-toggle"
+                            type="button">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="per_page">
+                            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=50">50</a></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=100">100</a>
+                            </li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=1000">1000</a>
+                            </li>
+                            <li role="presentation" class="divider"></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">All</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="input-group">
+
+                    <input type="text" class="form-control" name="search_input" id="searchInput2" type="text"
+                        placeholder="Search db from specify items ...">
+
+                    <div class="input-group-btn">
+                        <select name="select_item" class="custom-select form-control" id="inputGroupSelect01">
+                            <option selected>Choose...</option>
+                            <option value="ami_id">ami_id</option>
+                            <option value="instance_type">instance_type</option>
+                            <option value="instance_available_date">instance_available_date</option>
+                            <option value="compose_id">compose_id</option>
+                            <option value="pkg_ver">pkg_ver</option>
+                            <option value="bug_id">bug_id</option>
+                            <option value="branch_name">branch_name</option>
+                            <option value="test_date">test_date</option>
+                        </select>
+
+                        <button id="btn_GO" tabindex="-1" type="button" class="btn btn-default">Go!</button>
+                    </div>
+
+                </div>
+            </form>
+            {% endif %}
+            </li>
         </ul>
+
         <form class="navbar-form navbar-right"><a class="fa fa-github" style="font-size:24px"
                 href="https://github.com/liangxiao1/report_view"></a></form>
     </div>
