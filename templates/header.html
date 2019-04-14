@@ -82,8 +82,20 @@
             </li>
         </ul>
 
-        <form class="navbar-form navbar-right"><a class="fa fa-github" style="font-size:24px"
-                href="https://github.com/liangxiao1/report_view"></a></form>
+        <ul class="nav navbar-nav navbar-right">
+            {% if user  %}
+            <li class="navbar-text">
+                Welcome,{{ user }}!
+            </li>
+            {% else %}
+            <li class="navbar-item"><a href="{{ url_for('login') }}">
+                    <span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            {% endif %}
+            <li>
+                <a class="fa fa-github" style="font-size:24px" href="https://github.com/liangxiao1/report_view"></a>
+            </li>
+        </ul>
+
     </div>
 </nav>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">

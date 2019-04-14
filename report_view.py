@@ -163,6 +163,8 @@ def home():
     reports = pagination.items
     # if session['per_page'] > 5:
     #    url_for('home', per_page=session['per_page'])
+    if session.has_key('username'):
+        return render_template('home.html', per_page=session['per_page'], reports=reports, pagination=pagination, query_item=query_item, query_filed=query_filed,user=session['username'])
     return render_template('home.html', per_page=session['per_page'], reports=reports, pagination=pagination, query_item=query_item, query_filed=query_filed)
 
 
