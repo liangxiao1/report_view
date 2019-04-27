@@ -150,6 +150,9 @@ def update_item():
         return render_template('login.html', form=login_form)
     if request.method == 'GET':
         report_list = Report.query.filter(Report.log_id == log_id).all()
+        if len(report_list) == 0:
+            flash('No record found log_id: %s!' % log_id,'warning')
+            return redirect(url_for('home'))
         print(report_list[0].ami_id)
         item_form.log_id.data = log_id
 
@@ -173,6 +176,12 @@ def update_item():
     if request.method == 'POST':
 
         try:
+            if item_form.delete.data:
+                flash("Item %s deleted"%log_id)
+                report = Report.query.filter(Report.log_id == log_id).first()
+                report_db.session.delete(report)
+                report_db.session.commit()
+                return redirect(url_for('home'))
             report = Report.query.filter(Report.log_id == log_id).first()
 
             report.ami_id = item_form.ami_id.data

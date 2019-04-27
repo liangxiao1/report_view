@@ -37,3 +37,4 @@ class UpdateItemForm(FlaskForm):
     test_date = TextField('test_date', render_kw={'readonly': True})
     comments = TextAreaField('comments')
     submit = SubmitField("Update")
+    delete = SubmitField("Delete")
