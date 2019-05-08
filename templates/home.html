@@ -1,5 +1,4 @@
 {% extends "header.html" %}
-{% import "_macros.html" as macros %}
 
 {% block content %}
 <style>
@@ -66,7 +65,7 @@
 </table>
 
 <div class="pagination">
-  {{ macros.pagination_widget(pagination, '.home', per_page,query_item,query_filed) }}
+  {{ pg.render_pagination(pagination) }}
 </div>
 
 <script>

@@ -1,7 +1,7 @@
 {% extends "bootstrap/base.html" %}
-{% import "_macros.html" as macros %}
 {% import "bootstrap/utils.html" as utils %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/pagination.html" as pg %}
 {% block title %}EC2 Report Viewer{% endblock %}
 
 {% block navbar %}
@@ -51,7 +51,8 @@
                             <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=1000">1000</a>
                             </li>
                             <li role="presentation" class="divider"></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">All</a></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=100000">All</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
