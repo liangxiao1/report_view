@@ -8,7 +8,7 @@
 <nav class="navbar navbar-expand-lg navbar-light " style="background-color: #e3f2fd;">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand">EC2 Report Viewer v0.03</a>
+            <a class="navbar-brand">EC2 Report Viewer</a>
         </div>
         <ul class="nav navbar-nav">
             <li class="active"><a href="{{ url_for('home',clear=1) }}">Home</a></li>
@@ -83,10 +83,13 @@
         </ul>
 
         <ul class="nav navbar-nav navbar-right">
-            {% if user  %}
+
+            {% if current_user.is_authenticated %}
             <li class="navbar-text">
-                Welcome,{{ user }}!
+                Welcome,{{ current_user.username }}!
             </li>
+            <li class="navbar-item"><a href="{{ url_for('logout') }}">
+                    <span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
             {% else %}
             <li class="navbar-item"><a href="{{ url_for('login') }}">
                     <span class="glyphicon glyphicon-log-in"></span> Login</a></li>

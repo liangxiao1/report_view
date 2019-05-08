@@ -8,6 +8,8 @@ from sqlalchemy import Column, Integer, String, or_
 
 from forms import LoginForm, SearchForm, UpdateItemForm
 
+from flask_login import LoginManager, login_user, login_required, current_user, UserMixin, logout_user
+
 from bs4 import BeautifulSoup
 import urllib2
 from flask_googlecharts import GoogleCharts, ColumnChart, BarChart, LineChart
@@ -20,6 +22,13 @@ app.secret_key = 'development key'
 
 report_db = SQLAlchemy(app)
 report_db.init_app(app)
+
+login_manager=LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(username):
+    return User.query.get(username)
 
 charts = GoogleCharts(app)
 
@@ -36,6 +45,22 @@ class User(report_db.Model):
     username = Column(String)
     password = Column(String)
     sqlite_autoincrement = True
+
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return self.userid
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
 
 
 class Report(report_db.Model):
@@ -72,13 +97,7 @@ def home():
     query_item = request.args.get('select_item')
     clear_session = request.args.get('clear', 0, type=int)
     if clear_session == 1:
-        if session.has_key('username'):
-            username = session['username']
-            session.clear()
-            session['username'] = username
-        else:
-            session.clear()
-
+        session.clear()
         query_obj = None
     else:
         if query_item is None and session.has_key("query_item"):
@@ -128,8 +147,6 @@ def home():
     reports = pagination.items
     # if session['per_page'] > 5:
     #    url_for('home', per_page=session['per_page'])
-    if session.has_key('username'):
-        return render_template('home.html', per_page=session['per_page'], reports=reports, pagination=pagination, query_item=query_item, query_filed=query_filed,user=session['username'])
     return render_template('home.html', per_page=session['per_page'], reports=reports, pagination=pagination, query_item=query_item, query_filed=query_filed)
 
 
@@ -144,7 +161,8 @@ def update_item():
         log_id = session['log_id']
     try:
         login_form = LoginForm()
-        if session['username'] == None:
+        if not current_user.is_authenticated:
+            flash('Not auth')
             return render_template('login.html', form=login_form)
     except KeyError as err:
         return render_template('login.html', form=login_form)
@@ -172,7 +190,7 @@ def update_item():
         item_form.pass_rate.data = report_list[0].pass_rate
         item_form.test_date.data = report_list[0].test_date
         item_form.comments.data = report_list[0].comments
-        return render_template('update_item.html', form=item_form,user=session['username'])
+        return render_template('update_item.html', form=item_form)
     if request.method == 'POST':
 
         try:
@@ -232,16 +250,8 @@ def update_item():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    try:
-        login_form = LoginForm()
-        if session['username'] != None:
-            return redirect(url_for('home'))
-    except KeyError as err:
-        msg = 'Not login'
     login_form = LoginForm()
-    if request.method == 'GET':
-        return render_template('login.html', form=login_form, msg=msg)
-    if request.method == 'POST':
+    if login_form.validate_on_submit():
         username = login_form.username.data
         password = login_form.password.data
         # print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
@@ -268,9 +278,20 @@ def login():
             flash(msg, 'warning')
             return render_template('login.html', form=login_form)
         else:
+            #user1 = User.query.get(login_form.username.data)
+            user.is_authenticated = True
             session['username'] = username
-            return redirect(url_for('home'))
 
+            return redirect(url_for('home'))
+    else:
+        msg = 'Not login'
+        return render_template('login.html', form=login_form, msg=msg)
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
 
 @app.route('/show_chart',methods=['GET','POST'])
 def show_chart():
