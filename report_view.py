@@ -99,6 +99,8 @@ def home():
     query_filed = request.args.get('search_input')
     query_item = request.args.get('select_item')
     clear_session = request.args.get('clear', 0, type=int)
+    find_count = 0
+    find_count = Report.query.count()
     if clear_session == 1:
         # session.clear()
         session.pop('query_filed', None)
@@ -143,7 +145,9 @@ def home():
         filter_item = query_obj.like("%"+query_filed+"%")
         pagination = Report.query.filter(or_(filter_item)).order_by(
             Report.log_id.desc()).paginate(page, per_page=session['per_page'], error_out=False)
+        find_count = Report.query.filter(or_(filter_item)).count()
     else:
+        find_count = Report.query.count()
         pagination = Report.query.order_by(
             Report.log_id.desc()).paginate(page, per_page=session['per_page'], error_out=False)
 
@@ -153,6 +157,8 @@ def home():
     reports = pagination.items
     # if session['per_page'] > 5:
     #    url_for('home', per_page=session['per_page'])
+    msg = 'Found %s items!' % find_count
+    flash(msg, category='info')
     return render_template('home.html', per_page=session['per_page'], reports=reports, pagination=pagination, query_item=query_item, query_filed=query_filed)
 
 
@@ -168,7 +174,7 @@ def update_item():
         login_form = LoginForm()
     if not current_user.is_authenticated:
         flash('Not auth')
-        return render_template('login.html', form=login_form)
+        return redirect(url_for('login'))
     msg = None
     if item_form.validate_on_submit():
         try:
@@ -282,6 +288,7 @@ def show_chart():
     query_obj = None
     query_filed = search_form.search_input.data
     query_item = search_form.select_item.data
+    find_count = 0
 
     if request.method == 'GET':
         query_filed = request.args.get('search_input')
@@ -318,9 +325,12 @@ def show_chart():
         filter_item = query_obj.like("%"+query_filed+"%")
         report_list = Report.query.filter(or_(filter_item)).order_by(
             Report.log_id.desc()).all()
+        find_count = Report.query.filter(or_(filter_item)).order_by(
+            Report.log_id.desc()).count()
         # print('query_obj:%s query_filed:%s find%s'%(query_obj,query_filed,report_list))
     else:
         report_list = Report.query.order_by(Report.log_id.desc()).all()
+        find_count = Report.query.order_by(Report.log_id.desc()).count()
         # print('query_obj:%s query_filed:%s find%s'%(query_obj,query_filed,report_list))
 
     categary = request.args.get('categary', 'case_day', type=str)
@@ -451,6 +461,8 @@ def show_chart():
 
     # if request.method == 'GET':
     #    return redirect(url_for('show_chart',categary=categary,select_item=query_item, search_input=query_filed))
+    msg = 'Found %s items!' % find_count
+    flash(msg, 'info')
 
     return render_template('show_chart.html', categary=categary, select_item=query_item, search_input=query_filed, form=search_form)
     # return redirect(url_for('show_chart',categary=categary,select_item=query_item, search_input=query_filed))
