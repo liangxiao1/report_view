@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextField, PasswordField, SubmitField, TextAreaField, SelectField
+from wtforms.validators import Required, Length, Email
 
 
 class LoginForm(FlaskForm):
@@ -9,12 +10,14 @@ class LoginForm(FlaskForm):
 
 
 class SearchForm(FlaskForm):
-    search_input = TextField('', render_kw={"placeholder": "Filter by what?"})
+    search_input = TextField(
+        '', render_kw={"placeholder": "Filter by what?"}, validators=[Required()])
     select_item = SelectField('', choices=[('ami_id', 'ami_id'),
                                            ('instance_type', 'instance_type'), ('compose_id',
                                                                                 'compose_id'), ('pkg_ver', 'pkg_ver'),
                                            ('bug_id', 'bug_id'), ('branch_name', 'branch_name'), ('test_date', 'test_date'), ('instance_available_date', 'instance_available_date')])
-    submit = SubmitField("Go!")
+    submit = SubmitField("Go")
+    reset = SubmitField("Reset")
 
 
 class UpdateItemForm(FlaskForm):

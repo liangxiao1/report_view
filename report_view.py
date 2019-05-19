@@ -92,50 +92,63 @@ class Report(report_db.Model):
 @app.route('/', methods=['GET', 'POST'])
 def home():
     per_page_default = 50
+    search_form = SearchForm(csrf_enabled=True)
+    msg = ''
 
+    if search_form.validate_on_submit():
+        if search_form.reset.data:
+            msg += "Clear all filters!"
+            # session.clear()
+            session.pop('query_filed', None)
+            session.pop('select_item', None)
+            session.pop('query_item', None)
+            query_obj = None
+            return redirect(url_for('home'))
+        else:
+            query_filed = search_form.search_input.data
+            query_item = search_form.select_item.data
+    else:
+        query_filed = request.args.get('search_input')
+        query_item = request.args.get('select_item')
     reports = Report.query.all()
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', per_page_default, type=int)
-    query_filed = request.args.get('search_input')
-    query_item = request.args.get('select_item')
+
     clear_session = request.args.get('clear', 0, type=int)
     find_count = 0
     find_count = Report.query.count()
-    if clear_session == 1:
-        # session.clear()
-        session.pop('query_filed', None)
-        session.pop('select_item', None)
-        session.pop('query_item', None)
-        query_obj = None
-    else:
-        if query_item is None and session.has_key("query_item"):
-            query_item = session['query_item']
-            query_filed = session['query_filed']
-        elif query_item is not None:
-            session['query_item'] = query_item
-            session['query_filed'] = query_filed
-        try:
-            if 'ami_id' in query_item:
-                query_obj = Report.ami_id
-            elif 'instance_type' in query_item:
-                query_obj = Report.instance_type
-            elif 'instance_available_date' in query_item:
-                query_obj = Report.instance_available_date
-            elif 'compose_id' in query_item:
-                query_obj = Report.compose_id
-            elif 'pkg_ver' in query_item:
-                query_obj = Report.pkg_ver
-            elif 'bug_id' in query_item:
-                query_obj = Report.bug_id
-            elif 'branch_name' in query_item:
-                query_obj = Report.branch_name
-            elif 'test_date' in query_item:
-                query_obj = Report.test_date
-            else:
-                query_obj = None
-        except Exception as err:
+
+    if query_item is None and session.has_key("query_item"):
+        query_item = session['query_item']
+        query_filed = session['query_filed']
+        search_form.search_input.data = query_filed
+        search_form.select_item.data = query_item
+    elif query_item is not None:
+        session['query_item'] = query_item
+        session['query_filed'] = query_filed
+        search_form.search_input.data = query_filed
+        search_form.select_item.data = query_item
+    try:
+        if 'ami_id' in query_item:
+            query_obj = Report.ami_id
+        elif 'instance_type' in query_item:
+            query_obj = Report.instance_type
+        elif 'instance_available_date' in query_item:
+            query_obj = Report.instance_available_date
+        elif 'compose_id' in query_item:
+            query_obj = Report.compose_id
+        elif 'pkg_ver' in query_item:
+            query_obj = Report.pkg_ver
+        elif 'bug_id' in query_item:
+            query_obj = Report.bug_id
+        elif 'branch_name' in query_item:
+            query_obj = Report.branch_name
+        elif 'test_date' in query_item:
+            query_obj = Report.test_date
+        else:
             query_obj = None
-        # print("%s-%s-%s" % (query_filed, query_item, session['query_item']))
+    except Exception as err:
+        query_obj = None
 
     session['per_page'] = per_page_default
     if per_page != per_page_default:
@@ -157,9 +170,12 @@ def home():
     reports = pagination.items
     # if session['per_page'] > 5:
     #    url_for('home', per_page=session['per_page'])
-    msg = 'Found %s items!' % find_count
+    msg += 'Found %s items!' % find_count
+
+    if search_form.validate_on_submit():
+        return redirect(url_for('.home', query_item=query_item, query_filed=query_filed))
     flash(msg, category='info')
-    return render_template('home.html', per_page=session['per_page'], reports=reports, pagination=pagination, query_item=query_item, query_filed=query_filed)
+    return render_template('home.html', per_page=session['per_page'], form=search_form, reports=reports, pagination=pagination, query_item=query_item, query_filed=query_filed)
 
 
 @app.route('/update_item', methods=['GET', 'POST'])
@@ -284,21 +300,35 @@ def logout():
 
 @app.route('/show_chart', methods=['GET', 'POST'])
 def show_chart():
-    search_form = SearchForm()
+    search_form = SearchForm(csrf_enabled=True)
     query_obj = None
-    query_filed = search_form.search_input.data
-    query_item = search_form.select_item.data
     find_count = 0
-
-    if request.method == 'GET':
+    msg = ''
+    if search_form.validate_on_submit():
+        if search_form.reset.data:
+            msg += "Clear all filters!"
+            # session.clear()
+            session.pop('query_filed', None)
+            session.pop('select_item', None)
+            session.pop('query_item', None)
+            query_obj = None
+            return redirect(url_for('.show_chart'))
+        else:
+            query_filed = search_form.search_input.data
+            query_item = search_form.select_item.data
+    else:
         query_filed = request.args.get('search_input')
         query_item = request.args.get('select_item')
     if query_item is None and session.has_key("query_item"):
         query_item = session['query_item']
         query_filed = session['query_filed']
+        search_form.search_input.data = query_filed
+        search_form.select_item.data = query_item
     elif query_item is not None:
         session['query_item'] = query_item
         session['query_filed'] = query_filed
+        search_form.search_input.data = query_filed
+        search_form.select_item.data = query_item
     try:
         if 'ami_id' in query_item:
             query_obj = Report.ami_id
@@ -461,9 +491,12 @@ def show_chart():
 
     # if request.method == 'GET':
     #    return redirect(url_for('show_chart',categary=categary,select_item=query_item, search_input=query_filed))
-    msg = 'Found %s items!' % find_count
-    flash(msg, 'info')
+    msg += 'Found %s items!' % find_count
 
+    if search_form.validate_on_submit():
+
+        return redirect(url_for('.show_chart', query_item=query_item, query_filed=query_filed, categary=categary))
+    flash(msg, 'info')
     return render_template('show_chart.html', categary=categary, select_item=query_item, search_input=query_filed, form=search_form)
     # return redirect(url_for('show_chart',categary=categary,select_item=query_item, search_input=query_filed))
 
