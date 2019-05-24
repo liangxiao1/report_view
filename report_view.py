@@ -108,8 +108,8 @@ def home():
             query_filed = search_form.search_input.data
             query_item = search_form.select_item.data
     else:
-        query_filed = request.args.get('search_input')
-        query_item = request.args.get('select_item')
+        query_filed = request.args.get('query_filed')
+        query_item = request.args.get('query_item')
     reports = Report.query.all()
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', per_page_default, type=int)
