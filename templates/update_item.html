@@ -17,9 +17,9 @@
 </style>
 
 <div class="container">
-  <legend>Update item - {{form.log_id.data}}</legend>
+  <legend>Update item - {{item_form.log_id.data}}</legend>
 
-  {{ wtf.quick_form(form,form_type="horizontal",horizontal_columns=('lg', 2, 4),action=url_for('update_item')) }}
+  {{ wtf.quick_form(item_form,form_type="horizontal",horizontal_columns=('lg', 2, 4),action=url_for('update_item')) }}
 </div>
 
 {% endblock %}

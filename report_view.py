@@ -182,6 +182,22 @@ def home():
 def update_item():
 
     item_form = UpdateItemForm()
+    search_form = SearchForm(csrf_enabled=True)
+    if search_form.validate_on_submit():
+        if search_form.reset.data:
+            msg += "Clear all filters!"
+            # session.clear()
+            session.pop('query_filed', None)
+            session.pop('select_item', None)
+            session.pop('query_item', None)
+            query_obj = None
+            return redirect(url_for('home'))
+        else:
+            query_filed = search_form.search_input.data
+            query_item = search_form.select_item.data
+        return redirect(url_for('home',query_filed=query_filed,query_item=query_item))
+        
+
     log_id = request.args.get('log_id', 0, type=int)
     if log_id != 0:
         session['log_id'] = log_id
@@ -248,7 +264,7 @@ def update_item():
     item_form.pass_rate.data = report_list[0].pass_rate
     item_form.test_date.data = report_list[0].test_date
     item_form.comments.data = report_list[0].comments
-    return render_template('update_item.html', form=item_form, msg=msg)
+    return render_template('update_item.html', form=search_form, item_form=item_form, msg=msg)
 
 
 @app.route('/login', methods=['GET', 'POST'])
