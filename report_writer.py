@@ -71,23 +71,23 @@ def report_writer():
             '[0-9]{4}-[0-9]{2}-[0-9]{2}', report_dict['debuglog'])
         for x in report_dict['tests']:
             instance_type = re.findall('Cloud-.*-', x['id'])[0].split('-')[1]
-            if instances_sub_report.has_key(instance_type):
-                instances_sub_report[instance_type]['cases_total'] += 1
-                if 'PASS' in x['status']:
-                    instances_sub_report[instance_type]['cases_pass'] += 1
-                elif 'FAIL' in x['status']:
-                    instances_sub_report[instance_type]['cases_fail'] += 1
-                elif "CANCEL" in x['status'] or "SKIP" in x['status']:
-                    instances_sub_report[instance_type]['cases_cancel'] += 1
-                else:
-                    instances_sub_report[instance_type]['cases_other'] += 1
-                pass_rate = instances_sub_report[instance_type]['cases_pass']*100 / \
-                    (instances_sub_report[instance_type]['cases_total'] -
-                     instances_sub_report[instance_type]['cases_cancel'])
-                instances_sub_report[instance_type]['pass_rate'] = pass_rate
-            else:
+            if not instances_sub_report.has_key(instance_type):
                 instances_sub_report[instance_type] = {
                     'cases_other': 0, 'cases_pass': 0, 'cases_fail': 0, 'cases_cancel': 0, 'cases_total': 0, 'test_date': test_date, 'pass_rate': 0}
+            instances_sub_report[instance_type]['cases_total'] += 1
+            if 'PASS' in x['status']:
+                instances_sub_report[instance_type]['cases_pass'] += 1
+            elif 'FAIL' in x['status']:
+                instances_sub_report[instance_type]['cases_fail'] += 1
+            elif "CANCEL" in x['status'] or "SKIP" in x['status']:
+                instances_sub_report[instance_type]['cases_cancel'] += 1
+            else:
+                instances_sub_report[instance_type]['cases_other'] += 1
+            pass_rate = instances_sub_report[instance_type]['cases_pass']*100 / \
+                (instances_sub_report[instance_type]['cases_total'] -
+                 instances_sub_report[instance_type]['cases_cancel'])
+            instances_sub_report[instance_type]['pass_rate'] = pass_rate
+
     for instance_type in instances_sub_report.keys():
         print(instance_type, instances_sub_report[instance_type])
         report = Report()
