@@ -40,7 +40,6 @@ class User(Base):
     password = Column(String)
     sqlite_autoincrement = True
 
-
 Base.metadata.create_all(db_engine)
 '''
 conn = sqlite3.connect('report_data.db')

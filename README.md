@@ -13,7 +13,7 @@ Quick start:
 #pip install flask_sqlalchemy
 #pip install sqlalchemy
 #./initdb.py # do not do it if you already do it
-#./report_view.py
+#python manager.py runserver -h 0.0.0.0 -p 8001
 ```
 Then you can access it via: http://IP:8001
 

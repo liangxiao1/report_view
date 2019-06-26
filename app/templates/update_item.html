@@ -1,5 +1,5 @@
 {% extends "header.html" %}
-{% import "_macros.html" as macros %}
+
 {% import "bootstrap/wtf.html" as wtf %}
 
 
@@ -19,7 +19,7 @@
 <div class="container">
   <legend>Update item - {{item_form.log_id.data}}</legend>
 
-  {{ wtf.quick_form(item_form,form_type="horizontal",horizontal_columns=('lg', 2, 4),action=url_for('update_item')) }}
+  {{ wtf.quick_form(item_form,form_type="horizontal",horizontal_columns=('lg', 2, 4),action=url_for('main.update_item')) }}
 </div>
 
 {% endblock %}

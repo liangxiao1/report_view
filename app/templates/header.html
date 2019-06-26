@@ -11,19 +11,19 @@
             <a class="navbar-brand">EC2 Report Viewer</a>
         </div>
         <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="active"><a href="{{ url_for('main.home') }}">Home</a></li>
 
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">DiagChart
                     <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="{{ url_for('show_chart',categary='ins_cov') }}">Instance
+                    <li><a href="{{ url_for('main.show_chart',categary='ins_cov') }}">Instance
                             Coverage</a></li>
-                    <li><a href="{{ url_for('show_chart',categary='case_day') }}">Cases
+                    <li><a href="{{ url_for('main.show_chart',categary='case_day') }}">Cases
                             Per Day</a></li>
-                    <li><a href="{{ url_for('show_chart',categary='case_run') }}">Cases
+                    <li><a href="{{ url_for('main.show_chart',categary='case_run') }}">Cases
                             Per Run</a></li>
-                    <li><a href="{{ url_for('show_chart',categary='case_pass') }}">Cases
+                    <li><a href="{{ url_for('main.show_chart',categary='case_pass') }}">Cases
                             Pass Ratio</a></li>
                 </ul>
             </li>
@@ -71,10 +71,10 @@
             <li class="navbar-text">
                 Welcome,{{ current_user.username }}!
             </li>
-            <li class="navbar-item"><a href="{{ url_for('logout') }}">
+            <li class="navbar-item"><a href="{{ url_for('main.logout') }}">
                     <span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
             {% else %}
-            <li class="navbar-item"><a href="{{ url_for('login') }}">
+            <li class="navbar-item"><a href="{{ url_for('main.login') }}">
                     <span class="glyphicon glyphicon-log-in"></span> Login</a></li>
             {% endif %}
             <li>

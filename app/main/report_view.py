@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+
+from . import main
+from .. import report_db,login_manager,charts
+
 from datetime import timedelta, date, datetime
 from flask import Flask, render_template, request, jsonify, session, url_for, redirect, flash
 from flask_bootstrap import Bootstrap
@@ -15,26 +18,10 @@ from bs4 import BeautifulSoup
 import urllib2
 from flask_googlecharts import GoogleCharts, ColumnChart, BarChart, LineChart
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///report_data.db'
-
-bootstrap = Bootstrap(app)
-app.secret_key = 'development key'
-
-report_db = SQLAlchemy(app)
-report_db.init_app(app)
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-
 
 @login_manager.user_loader
 def load_user(username):
     return User.query.get(username)
-
-
-charts = GoogleCharts(app)
-
 
 def daterange(date1, date2):
     for n in range(int((date2 - date1).days)+1):
@@ -89,7 +76,7 @@ class Report(report_db.Model):
     sqlite_autoincrement = True
 
 
-@app.route('/', methods=['GET', 'POST'])
+@main.route('/', methods=['GET', 'POST'])
 def home():
     per_page_default = 50
     search_form = SearchForm(csrf_enabled=True)
@@ -103,7 +90,7 @@ def home():
             session.pop('select_item', None)
             session.pop('query_item', None)
             query_obj = None
-            return redirect(url_for('home'))
+            return redirect(url_for('main.home'))
         else:
             query_filed = search_form.search_input.data
             query_item = search_form.select_item.data
@@ -173,12 +160,11 @@ def home():
     msg += 'Found %s items!' % find_count
 
     if search_form.validate_on_submit():
-        return redirect(url_for('.home', query_item=query_item, query_filed=query_filed))
+        return redirect(url_for('main.home', query_item=query_item, query_filed=query_filed))
     flash(msg, category='info')
     return render_template('home.html', per_page=session['per_page'], form=search_form, reports=reports, pagination=pagination, query_item=query_item, query_filed=query_filed)
 
-
-@app.route('/update_item', methods=['GET', 'POST'])
+@main.route('/update_item', methods=['GET', 'POST'])
 def update_item():
 
     item_form = UpdateItemForm()
@@ -206,7 +192,7 @@ def update_item():
         login_form = LoginForm()
     if not current_user.is_authenticated:
         flash('Not auth')
-        return redirect(url_for('login'))
+        return redirect(url_for('main.login'))
     msg = None
     if item_form.validate_on_submit():
         try:
@@ -215,7 +201,7 @@ def update_item():
                 report = Report.query.filter(Report.log_id == log_id).first()
                 report_db.session.delete(report)
                 report_db.session.commit()
-                return redirect(url_for('home'))
+                return redirect(url_for('main.home'))
             report = Report.query.filter(Report.log_id == log_id).first()
 
             report.ami_id = item_form.ami_id.data
@@ -245,7 +231,7 @@ def update_item():
     report_list = Report.query.filter(Report.log_id == log_id).all()
     if len(report_list) == 0:
         flash('No record found log_id: %s!' % log_id, 'warning')
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     print(report_list[0].ami_id)
     item_form.log_id.data = log_id
     item_form.ami_id.data = report_list[0].ami_id
@@ -267,7 +253,7 @@ def update_item():
     return render_template('update_item.html', form=search_form, item_form=item_form, msg=msg)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@main.route('/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm()
     if login_form.validate_on_submit():
@@ -301,20 +287,20 @@ def login():
             user.is_authenticated = True
             login_user(user)
 
-            return redirect(url_for('home'))
+            return redirect(url_for('main.home'))
     else:
         msg = 'Not login'
         return render_template('login.html', form=login_form, msg=msg)
 
 
-@app.route("/logout")
+@main.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect('/')
 
 
-@app.route('/show_chart', methods=['GET', 'POST'])
+@main.route('/show_chart', methods=['GET', 'POST'])
 def show_chart():
     search_form = SearchForm(csrf_enabled=True)
     query_obj = None
@@ -328,7 +314,7 @@ def show_chart():
             session.pop('select_item', None)
             session.pop('query_item', None)
             query_obj = None
-            return redirect(url_for('.show_chart'))
+            return redirect(url_for('main.show_chart'))
         else:
             query_filed = search_form.search_input.data
             query_item = search_form.select_item.data
@@ -511,7 +497,7 @@ def show_chart():
 
     if search_form.validate_on_submit():
 
-        return redirect(url_for('.show_chart', query_item=query_item, query_filed=query_filed, categary=categary))
+        return redirect(url_for('main.show_chart', query_item=query_item, query_filed=query_filed, categary=categary))
     flash(msg, 'info')
     return render_template('show_chart.html', categary=categary, select_item=query_item, search_input=query_filed, form=search_form)
     # return redirect(url_for('show_chart',categary=categary,select_item=query_item, search_input=query_filed))
@@ -519,7 +505,3 @@ def show_chart():
     # ec2_chart=ColumnChart("instance_coverage", options={
     #                        'title': 'Instance Types Coverage Status'}, data_url=url_for('show_chart'))
 
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8001, debug=False)
-    # app.run(debug = True)
