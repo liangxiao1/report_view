@@ -1,13 +1,12 @@
 from flask_sqlalchemy import BaseQuery, Pagination, SQLAlchemy
 from sqlalchemy import Column, Integer, String, or_
 
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
+from .. import report_db
 
-class ProjectMap(Base):
+class ProjectMap(report_db.Model):
     __tablename__ = 'project_map'
     project_id = Column(Integer, primary_key=True)
-    project_name = Column(String)
+    project_name = Column(String,unique=True)
     field_1 = Column(String)
     field_2 = Column(String)
     field_3 = Column(String)
@@ -29,9 +28,11 @@ class ProjectMap(Base):
     field_19 = Column(String)
     field_20 = Column(String)
     sqlite_autoincrement = True
+    def __repr__(self):
+        return '<Name % r>' % self.project_name
 
-class ProjectTab(Base):
-    __tablename__ = 'project_map'
+class ProjectTab(report_db.Model):
+    __tablename__ = 'project_data'
     id = Column(Integer, primary_key=True)
     project_id = Column(Integer)
     project_name = Column(String)

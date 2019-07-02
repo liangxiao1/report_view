@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup
 import urllib2
 from flask_googlecharts import GoogleCharts, ColumnChart, BarChart, LineChart
 
+from .db_class import ProjectMap
 
 @login_manager.user_loader
 def load_user(username):

@@ -11,20 +11,15 @@
             <a class="navbar-brand">EC2 Report Viewer</a>
         </div>
         <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ url_for('main.home') }}">Home</a></li>
+            <li class="active"><a href="{{ url_for('main.index') }}">Home</a></li>
 
             <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">DiagChart
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Projects List
                     <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="{{ url_for('main.show_chart',categary='ins_cov') }}">Instance
-                            Coverage</a></li>
-                    <li><a href="{{ url_for('main.show_chart',categary='case_day') }}">Cases
-                            Per Day</a></li>
-                    <li><a href="{{ url_for('main.show_chart',categary='case_run') }}">Cases
-                            Per Run</a></li>
-                    <li><a href="{{ url_for('main.show_chart',categary='case_pass') }}">Cases
-                            Pass Ratio</a></li>
+                    {% for project in projects %}
+                    <li><a href="{{ url_for('main.view',project_name=project.project_name) }}"> {{ project.project_name }} </a></li>
+                    {% endfor %}
                 </ul>
             </li>
             <li>
@@ -32,6 +27,7 @@
 
                 {{ wtf.quick_form(form,form_type="inline",horizontal_columns=('sm', 0, 0),extra_classes="input-group navbar-form navbar-left") }}
                 {% elif 'create_project' in request.path %}
+                {% elif 'index' in request.path %}
 
                 {% else %}
                 <form class="navbar-form navbar-left">

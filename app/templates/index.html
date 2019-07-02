@@ -1,0 +1,134 @@
+{% extends "header_v2.html" %}
+{% block content %}
+<style>
+  .ns-resize {
+    cursor: ns-resize;
+  }
+
+  #report_table tr.header,
+  #report_table tr:hover {
+    background-color: #f1f1f1;
+
+  }
+</style>
+
+<table class="table table-bordered table-striped table-condensed" id='report_table'>
+  <thead>
+    <tr class="header">
+        <th class="ns-resize" onclick="sortTable(0)">#project_id</span></th>
+        <th class="ns-resize" onclick="sortTable(1)">project_name</span></th>
+        <th class="ns-resize" >view data</span></th>
+        <th class="ns-resize">Edit </th>
+    </tr>
+  </thead>
+  <tbody id='report_body'>
+    {% for project in projects %}
+    <tr>
+      <td>{{ project.project_id }}</td>
+      <td>{{ project.project_name }}</td>
+      <td><a href="{{ url_for('main.view',project_name=project.project_name) }}">view</a></td>
+      <td><a href="{{ url_for('main.edit_project',project_name=project.project_name) }}"><span class='glyphicon glyphicon-edit'></span></a></td>
+
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<script>
+  $(document).ready(function () {
+    $("#myInput").on("keyup", function () {
+      var value = $(this).val().toLowerCase();
+      $("#report_body tr").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+    $('#per_page').change(function () {
+      this.form.submit();
+    });
+    $("select_item").on("click", "li", function () {
+      $("#select_item").val($(this).text());
+    });
+    $("#btn_GO").click(function () {
+      this.form.submit();
+    });
+
+  });
+
+  function sortTable(n) {
+    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    table = document.getElementById("report_table");
+    switching = true;
+    //Set the sorting direction to ascending:
+    dir = "asc";
+    /*Make a loop that will continue until
+    no switching has been done:*/
+    while (switching) {
+      //start by saying: no switching is done:
+      switching = false;
+      rows = table.rows;
+      /*Loop through all table rows (except the
+      first, which contains table headers):*/
+      for (i = 1; i < (rows.length - 1); i++) {
+        //start by saying there should be no switching:
+        shouldSwitch = false;
+        /*Get the two elements you want to compare,
+        one from current row and one from the next:*/
+        x = rows[i].getElementsByTagName("TD")[n];
+        y = rows[i + 1].getElementsByTagName("TD")[n];
+        /*check if the two rows should switch place,
+        based on the direction, asc or desc:*/
+        if (dir == "asc") {
+
+          if (Number(x.innerHTML.toLowerCase()) > Number(y.innerHTML.toLowerCase())) {
+            shouldSwitch = true;
+            break;
+          }
+          if (Number.isInteger(Number(x.innerHTML.toLowerCase()))) {
+            continue;
+          }
+
+          if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+            //if so, mark as a switch and break the loop:
+            shouldSwitch = true;
+            break;
+          }
+        } else if (dir == "desc") {
+
+          if (Number(x.innerHTML.toLowerCase()) < Number(y.innerHTML.toLowerCase())) {
+            shouldSwitch = true;
+            break;
+          }
+          if (Number.isInteger(Number(x.innerHTML.toLowerCase()))) {
+            continue;
+          }
+
+          if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+            //if so, mark as a switch and break the loop:
+            shouldSwitch = true;
+            break;
+          }
+        }
+      }
+      if (shouldSwitch) {
+        /*If a switch has been marked, make the switch
+        and mark that a switch has been done:*/
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+        //Each time a switch is done, increase this count by 1:
+        switchcount++;
+      } else {
+        /*If no switching has been done AND the direction is "asc",
+        set the direction to "desc" and run the while loop again.*/
+        if (switchcount == 0 && dir == "asc") {
+          dir = "desc";
+          switching = true;
+        }
+      }
+    }
+  }
+
+
+
+</script>
+
+
+{% endblock %}

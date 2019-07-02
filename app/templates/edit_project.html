@@ -1,0 +1,22 @@
+{% extends "header_v2.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block content %}
+<style>
+    .ns-resize {
+        cursor: ns-resize;
+    }
+
+    #report_table tr.header,
+    #report_table tr:hover {
+        background-color: #f1f1f1;
+
+    }
+</style>
+
+<div class="container">
+    <legend>Edit Project - leave it blank for unused</legend>
+    {{ wtf.quick_form(project_form,form_type="horizontal",horizontal_columns=('lg', 1, 2),action=url_for('main.edit_project',project_name=project_name)) }}
+</div>>
+{% endblock %}
