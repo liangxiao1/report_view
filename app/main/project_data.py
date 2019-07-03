@@ -187,7 +187,7 @@ def update_data():
     project_datas = ProjectTab.query.filter_by(id=log_id).all()
     if len(project_datas) == 0 or project_datas == None:
         flash('No data found which id is %s' % log_id,'error')
-        return redirect(url_for('main.home'))
+        return redirect(url_for('main.index'))
     project_name = project_datas[0].project_name
 
     search_form = SearchForm_v2(csrf_enabled=True)

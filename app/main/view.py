@@ -119,6 +119,15 @@ def view():
             ProjectTab.id.desc()).all()
     find_count = len(pagination.items)
     
+    projects_data = []
+    for i in project_data:
+        projects_data.append([i.id,i.project_name,i.field_1,\
+            i.field_2,i.field_3,i.field_4,i.field_5,\
+        i.field_6,i.field_7,i.field_8,i.field_9,i.field_10,\
+        i.field_11,i.field_12,i.field_13,i.field_14,i.field_15,\
+        i.field_16,i.field_17,i.field_18,i.field_19,i.field_20])
+    print( projects_data)
+
     session['per_page'] = per_page_default
     if per_page != per_page_default:
         session['per_page'] = per_page
@@ -130,4 +139,4 @@ def view():
         flash(msg, category='info')
         print('xiliang3')
         return redirect(url_for('main.view', select_item=select_item, search_input=search_input, project_name=project_name))
-    return render_template('view.html', per_page=session['per_page'], form=search_form, project_items=project_items, project_data=project_data, pagination=pagination, select_item=select_item, search_input=search_input,project_name=project_name,projects=projects)
+    return render_template('view.html', per_page=session['per_page'], form=search_form, project_items=project_items, project_data=projects_data, pagination=pagination, select_item=select_item, search_input=search_input,project_name=project_name,projects=projects)

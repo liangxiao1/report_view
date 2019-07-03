@@ -26,69 +26,17 @@
   <tbody id='report_body'>
     {% for item_data in project_data %}
     <tr>
-      <td>{{ item_data.id }}</td>
-      <td>{{ item_data.project_name }}</td>
-      {% if item_data.field_1 !=  None %}
-      <td>{{ item_data.field_1 }}</td>
-      {% endif %}
-      {% if item_data.field_2 != None %}
-      <td>{{ item_data.field_2 }}</td>
-      {% endif %}
-      {% if item_data.field_3 != None %}
-      <td>{{ item_data.field_3 }}</td>
-      {% endif %}
-      {% if item_data.field_4 != None %}
-      <td>{{ item_data.field_4 }}</td>
-      {% endif %}
-      {% if item_data.field_5 != None %}
-      <td>{{ item_data.field_5 }}</td>
-      {% endif %}
-      {% if item_data.field_6 != None %}
-      <td>{{ item_data.field_6 }}</td>
-      {% endif %}
-      {% if item_data.field_7 != None %}
-      <td>{{ item_data.field_7 }}</td>
-      {% endif %}
-      {% if item_data.field_8 != None %}
-      <td>{{ item_data.field_8 }}</td>
-      {% endif %}
-      {% if item_data.field_9 != None %}
-      <td>{{ item_data.field_9 }}</td>
-      {% endif %}
-      {% if item_data.field_10 != None %}
-      <td>{{ item_data.field_10 }}</td>
-      {% endif %}
-      {% if item_data.field_11 != None %}
-      <td>{{ item_data.field_11 }}</td>
-      {% endif %}
-      {% if item_data.field_12 != None %}
-      <td>{{ item_data.field_12 }}</td>
-      {% endif %}
-      {% if item_data.field_13 != None %}
-      <td>{{ item_data.field_13 }}</td>
-      {% endif %}
-      {% if item_data.field_14 != None %}
-      <td>{{ item_data.field_14 }}</td>
-      {% endif %}
-      {% if item_data.field_15 != None %}
-      <td>{{ item_data.field_15 }}</td>
-      {% endif %}
-      {% if item_data.field_16 != None %}
-      <td>{{ item_data.field_16 }}</td>
-      {% endif %}
-      {% if item_data.field_17 != None %}
-      <td>{{ item_data.field_17 }}</td>
-      {% endif %}
-      {% if item_data.field_18 != None %}
-      <td>{{ item_data.field_18 }}</td>
-      {% endif %}
-      {% if item_data.field_19 != None %}
-      <td>{{ item_data.field_19 }}</td>
-      {% endif %}
-      {% if item_data.field_20 != None %}
-      <td>{{ item_data.field_20 }}</td>
-      {% endif %}
-      <td><a href="{{ url_for('main.update_data',log_id=item_data.id) }}"><span class='glyphicon glyphicon-edit'></span></a>
+      {% for i in item_data %}
+        {% if i !=  None %}
+            {% if 'result' in i|string and 'http' in i|string %}
+            <td><a href="{{ i }}">result</a></td>>
+            {%else%}
+            <td>{{ i }}</td>
+            {% endif %}
+        {% endif %}
+      {% endfor %}
+      <td><a href="{{ url_for('main.update_data',log_id=item_data[0]) }}"><span class='glyphicon glyphicon-edit'></span></a>
+      
       </td>
 
     </tr>
