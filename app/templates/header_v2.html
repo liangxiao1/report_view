@@ -61,6 +61,9 @@
 
                 {% endif %}
             </li>
+            {% if current_user.is_authenticated %}
+            <li class="active"><a href="{{ url_for('main.create_project') }}">New Project</a></li>
+            {% endif %}
         </ul>
 
         <ul class="nav navbar-nav navbar-right">

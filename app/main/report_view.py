@@ -288,7 +288,7 @@ def login():
             user.is_authenticated = True
             login_user(user)
 
-            return redirect(url_for('main.home'))
+            return redirect(url_for('main.index'))
     else:
         msg = 'Not login'
         return render_template('login.html', form=login_form, msg=msg)

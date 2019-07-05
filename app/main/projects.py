@@ -70,7 +70,7 @@ def create_project():
             #ProjectTab.set_tablename('project_%s'%project_name)
             #project.__table__.create(report_db.get_engine())
             flash("Added successfully!")
-            return redirect(url_for('view',project_name=project_name))
+            return redirect(url_for('main.view',project_name=project_name))
         except Exception as err:
             flash(err,'error')
     return render_template('create_project.html',form=search_form,project_form=project_form)

@@ -29,7 +29,13 @@
       {% for i in item_data %}
         {% if i !=  None %}
             {% if 'result' in i|string and 'http' in i|string %}
-            <td><a href="{{ i }}">result</a></td>>
+            <td><a href="{{ i }}">result</a></td>
+            {% elif 'pass' in i|string|lower %}
+            <td class="text-primary">{{ i }}</td>
+            {% elif 'fail' in i|string|lower %}
+            <td class="text-danger">{{ i }}</td>
+            {% elif 'abandon' in i|string|lower %}
+            <td class="text-warning">{{ i }}</td>
             {%else%}
             <td>{{ i }}</td>
             {% endif %}

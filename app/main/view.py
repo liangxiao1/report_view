@@ -103,10 +103,10 @@ def view():
     if query_obj is not None:
     #if search_form.validate_on_submit():
         filter_item = query_obj.like("%"+search_input+"%")
-        print(' filter_item %s'%filter_item)
+        #print(' filter_item %s'%filter_item)
         pagination = ProjectTab.query.filter(and_(filter_item,ProjectTab.project_name==project_name)).order_by(
             ProjectTab.id.desc()).paginate(page, per_page=session['per_page'], error_out=False)
-        print(pagination.items)
+        #print(pagination.items)
         project_data = ProjectTab.query.filter(and_(filter_item,ProjectTab.project_name==project_name)).order_by(
             ProjectTab.id.desc()).all()
         #find_count = ProjectTab.query.filter(or_(filter_item)).count()
@@ -126,7 +126,7 @@ def view():
         i.field_6,i.field_7,i.field_8,i.field_9,i.field_10,\
         i.field_11,i.field_12,i.field_13,i.field_14,i.field_15,\
         i.field_16,i.field_17,i.field_18,i.field_19,i.field_20])
-    print( projects_data)
+    #print( projects_data)
 
     session['per_page'] = per_page_default
     if per_page != per_page_default:
