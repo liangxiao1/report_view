@@ -146,11 +146,10 @@ def home():
         filter_item = query_obj.like("%"+query_filed+"%")
         pagination = Report.query.filter(or_(filter_item)).order_by(
             Report.log_id.desc()).paginate(page, per_page=session['per_page'], error_out=False)
-        find_count = Report.query.filter(or_(filter_item)).count()
     else:
-        find_count = Report.query.count()
         pagination = Report.query.order_by(
             Report.log_id.desc()).paginate(page, per_page=session['per_page'], error_out=False)
+    find_count = pagination.total
 
     # pagination = Report.query.order_by(
     #    Report.log_id.desc()).paginate(page, per_page=session['per_page'], error_out=False)

@@ -43,18 +43,27 @@
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="per_page">
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=50">50</a></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=100">100</a>
+                                {% if 'search_input' in request.url %}
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href={{ url_for('main.view',project_name=project_name,search_input=search_input,select_item=select_item,per_page=50) }}>50</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href={{ url_for('main.view',project_name=project_name,search_input=search_input,select_item=select_item,per_page=100) }}>100</a>
                                 </li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=1000">1000</a>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href={{ url_for('main.view',project_name=project_name,search_input=search_input,select_item=select_item,per_page=200) }}>200</a>
                                 </li>
-                                <li role="presentation" class="divider"></li>
-                                <li role="presentation"><a role="menuitem" tabindex="-1" href="?per_page=100000">All</a>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href={{ url_for('main.view',project_name=project_name,search_input=search_input,select_item=select_item,per_page=1000) }}>1000</a>
                                 </li>
+                                {% else%}
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href={{ url_for('main.view',project_name=project_name,per_page=50) }}>50</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href={{ url_for('main.view',project_name=project_name,per_page=100) }}>100</a>
+                                </li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href={{ url_for('main.view',project_name=project_name,per_page=200) }}>200</a>
+                                </li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href={{ url_for('main.view',project_name=project_name,per_page=1000) }}>1000</a>
+                                </li>
+
+                                {% endif %}
                             </ul>
                         </div>
                     </div>
-
                 </form>
 
                 {{ wtf.quick_form(form,form_type="inline",horizontal_columns=('sm', 0, 0),extra_classes="input-group navbar-form navbar-left") }}

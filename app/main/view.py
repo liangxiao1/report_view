@@ -25,6 +25,7 @@ def index():
 
 @main.route('/view', methods=['GET', 'POST'])
 def view():
+    print("reueqt %s" % request.args)
     projects= ProjectMap.query.all()
     project_name = request.args.get('project_name')
     if project_name == None:
@@ -32,8 +33,19 @@ def view():
         return redirect(url_for('main.index'))
     per_page_default = 50
     search_form = SearchForm_v2(csrf_enabled=True)
+    print('xiliang per_page default %s'%per_page_default)
+    per_page = request.args.get('per_page')
+    if per_page is None and not session.has_key('per_page'):
+        per_page = per_page_default
+    elif per_page is None and session.has_key('per_page'):
+        per_page = session['per_page']
+    elif per_page is not None:
+        session['per_page'] = per_page
+
+    print('xiliang2 per_page%s'%per_page)
+    print('xiliang3 session per_page%s' % session['per_page'])
     drop_list=libs.init_droplist(project_name)
-    
+
     msg = ''
     project= ProjectMap.query.filter_by(project_name=project_name).all()
     if len(project) == 0 or project == None:
@@ -43,17 +55,12 @@ def view():
     project_data = ProjectTab.query.filter_by(project_name=project_name).all()
     if len(project_data) == 0 or project_data == None:
         flash('No data found %s' % project_name,'error')
-        print("xiliang----")
     project_items=libs.init_project_titles(project_name)
 
     search_form.set_choices(drop_list)
     #pagination = libs.search_db(search_form=search_form,project_name=project_name,submit=search_form.validate_on_submit(),reset=search_form.reset.data)
-    #reports = ProjectTab.query.all()
-
-    per_page_default = 100
     find_count = 0
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', per_page_default, type=int)
     query_obj = None
     if search_form.validate_on_submit():
         print('item select %s, search input %s'% (search_form.select_item.data,search_form.search_input.data))
@@ -65,16 +72,13 @@ def view():
             session.pop('select_item', None)
             query_obj = None
             search_form.select_item.data = None
-            return redirect(url_for('main.view',project_name='test4'))
+            return redirect(url_for('main.view',project_name=project_name))
         else:
             select_item = search_form.select_item.data
             search_input = search_form.search_input.data 
     else:
         select_item = request.args.get('select_item')
         search_input = request.args.get('search_input')
-    session['per_page'] = per_page_default
-    if per_page != per_page_default:
-        session['per_page'] = per_page
     
     if select_item is None and session.has_key("select_item"):
         select_item = session['select_item']
@@ -93,7 +97,6 @@ def view():
         ProjectTab.field_6,ProjectTab.field_7,ProjectTab.field_8,ProjectTab.field_9,ProjectTab.field_10,\
         ProjectTab.field_11,ProjectTab.field_12,ProjectTab.field_13,ProjectTab.field_14,ProjectTab.field_15,\
         ProjectTab.field_16,ProjectTab.field_17,ProjectTab.field_18,ProjectTab.field_19,ProjectTab.field_20]
-    print(items_list)
     for item in zip(items_list,data_list):
             if select_item is not None and select_item in item[0]:
                     print("quey_obj found%s"%item[1])
@@ -101,42 +104,30 @@ def view():
                     break
     
     if query_obj is not None:
-    #if search_form.validate_on_submit():
         filter_item = query_obj.like("%"+search_input+"%")
-        #print(' filter_item %s'%filter_item)
         pagination = ProjectTab.query.filter(and_(filter_item,ProjectTab.project_name==project_name)).order_by(
-            ProjectTab.id.desc()).paginate(page, per_page=session['per_page'], error_out=False)
-        #print(pagination.items)
-        project_data = ProjectTab.query.filter(and_(filter_item,ProjectTab.project_name==project_name)).order_by(
-            ProjectTab.id.desc()).all()
-        #find_count = ProjectTab.query.filter(or_(filter_item)).count()
+            ProjectTab.id.desc()).paginate(page, per_page=int(per_page), error_out=False)
+        #project_data = ProjectTab.query.filter(and_(filter_item,ProjectTab.project_name==project_name)).order_by(
+        #    ProjectTab.id.desc()).all()
     else:
-        #find_count = ProjectTab.query.filter_by(project_name=project_name).count()
         pagination = ProjectTab.query.filter_by(project_name=project_name).order_by(
-            ProjectTab.id.desc()).paginate(page, per_page=session['per_page'], error_out=False)
+            ProjectTab.id.desc()).paginate(page, per_page=int(per_page), error_out=False)
         print(pagination.items)
-        project_data = ProjectTab.query.filter(and_(ProjectTab.project_name==project_name)).order_by(
-            ProjectTab.id.desc()).all()
-    find_count = len(pagination.items)
+
+    find_count = pagination.total
     
     projects_data = []
-    for i in project_data:
+    for i in pagination.items:
         projects_data.append([i.id,i.project_name,i.field_1,\
             i.field_2,i.field_3,i.field_4,i.field_5,\
         i.field_6,i.field_7,i.field_8,i.field_9,i.field_10,\
         i.field_11,i.field_12,i.field_13,i.field_14,i.field_15,\
         i.field_16,i.field_17,i.field_18,i.field_19,i.field_20])
-    #print( projects_data)
 
-    session['per_page'] = per_page_default
-    if per_page != per_page_default:
-        session['per_page'] = per_page
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', per_page_default, type=int)
-    msg += 'Found %s items!' % find_count
+    msg += 'Found %s items in %s pages!' % (find_count,pagination.pages)
     
     if search_form.validate_on_submit():
         flash(msg, category='info')
-        print('xiliang3')
-        return redirect(url_for('main.view', select_item=select_item, search_input=search_input, project_name=project_name))
+        return redirect(url_for('main.view', select_item=select_item, search_input=search_input, project_name=project_name,per_page=per_page))
     return render_template('view.html', per_page=session['per_page'], form=search_form, project_items=project_items, project_data=projects_data, pagination=pagination, select_item=select_item, search_input=search_input,project_name=project_name,projects=projects)

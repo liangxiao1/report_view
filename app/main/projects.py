@@ -40,7 +40,6 @@ def create_project():
         #if ProjectMap.query.filter_by(project_name=project_name)
         project.project_name=project_form.project_name.data
         project.field_1=project_form.field_1.data
-        print("field1 is %s" %project.field_1)
         project.field_2=project_form.field_2.data
         project.field_3=project_form.field_3.data
         project.field_4=project_form.field_4.data
@@ -85,7 +84,6 @@ def edit_project():
         return redirect(url_for('main.index'))
     
     project= ProjectMap.query.filter_by(project_name=project_name).all()
-    #print("project %s" % project)
     if len(project) == 0 or project == None:
         flash('No project named %s' % project_name,'error')
         return redirect(url_for('main.index'))
@@ -128,7 +126,6 @@ def edit_project():
                 flash(err,'error')
         elif project_form.delete.data:
             try:
-                print('Delete click')
                 report_db.session.delete(project[0])
                 report_db.session.commit()
                 flash('Deleted successfully!','info')
