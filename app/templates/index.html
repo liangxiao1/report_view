@@ -19,6 +19,7 @@
         <th class="ns-resize" onclick="sortTable(1)">project_name</span></th>
         <th class="ns-resize" >view data</span></th>
         <th class="ns-resize">Edit </th>
+        <th class="ns-resize">Add Data </th>
     </tr>
   </thead>
   <tbody id='report_body'>
@@ -28,6 +29,7 @@
       <td>{{ project.project_name }}</td>
       <td><a href="{{ url_for('main.view',project_name=project.project_name) }}">view</a></td>
       <td><a href="{{ url_for('main.edit_project',project_name=project.project_name) }}"><span class='glyphicon glyphicon-edit'></span></a></td>
+      <td><a href="{{ url_for('main.add_data',project_name=project.project_name) }}">Add</a></td>
 
     </tr>
     {% endfor %}
@@ -36,6 +38,7 @@
       <td>avocado-cloud-aws</td>
       <td><a href="{{ url_for('main.home') }}">view</a></td>
       <td><span class='glyphicon glyphicon-edit'></span></td>
+      <td></td>
 
     </tr>
   </tbody>
