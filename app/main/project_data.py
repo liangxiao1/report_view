@@ -103,7 +103,7 @@ def add_data():
         if len(project_items[18]) > 0: project_data_form.field_17.label.text = project_items[18]
     if len(project_items) > 19:
         if len(project_items[19]) > 0: project_data_form.field_18.label.text = project_items[19]
-    if len(project_items) > 10:
+    if len(project_items) > 20:
         if len(project_items[20]) > 0: project_data_form.field_19.label.text = project_items[20]
     if len(project_items) > 21:
         if len(project_items[21]) > 0: project_data_form.field_20.label.text = project_items[21]
@@ -113,7 +113,6 @@ def add_data():
     if project_data_form.validate_on_submit():
         project_data.project_id = project_data_form.project_id.data
         project_data.project_name = project_data_form.project_name.data
-        print(len(project_items), project_data_form.field_1.data)
         if len(project_items) > 2:
             if len(project_items[2]) > 0: project_data.field_1 = project_data_form.field_1.data
         if len(project_items) > 3:
