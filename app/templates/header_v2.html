@@ -28,6 +28,7 @@
                 {{ wtf.quick_form(form,form_type="inline",horizontal_columns=('sm', 0, 0),extra_classes="input-group navbar-form navbar-left") }}
                 {% elif 'create_project' in request.path %}
                 {% elif 'index' in request.path %}
+                {% elif 'user' in request.path %}
 
                 {% else %}
                 <form class="navbar-form navbar-left">

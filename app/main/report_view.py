@@ -20,39 +20,11 @@ from flask_googlecharts import GoogleCharts, ColumnChart, BarChart, LineChart
 
 from .db_class import ProjectMap
 
-@login_manager.user_loader
-def load_user(username):
-    return User.query.get(username)
+
 
 def daterange(date1, date2):
     for n in range(int((date2 - date1).days)+1):
         yield date1 + timedelta(n)
-
-
-class User(report_db.Model):
-    __tablename__ = 'user_info'
-
-    userid = Column(Integer, primary_key=True)
-    username = Column(String)
-    password = Column(String)
-    sqlite_autoincrement = True
-
-    def is_active(self):
-        """True, as all users are active."""
-        return True
-
-    def get_id(self):
-        """Return the email address to satisfy Flask-Login's requirements."""
-        return self.userid
-
-    def is_authenticated(self):
-        """Return True if the user is authenticated."""
-        return self.authenticated
-
-    def is_anonymous(self):
-        """False, as anonymous users aren't supported."""
-        return False
-
 
 class Report(report_db.Model):
     __tablename__ = 'report_info'
@@ -251,54 +223,6 @@ def update_item():
     item_form.test_date.data = report_list[0].test_date
     item_form.comments.data = report_list[0].comments
     return render_template('update_item.html', form=search_form, item_form=item_form, msg=msg)
-
-
-@main.route('/login', methods=['GET', 'POST'])
-def login():
-    login_form = LoginForm()
-    if login_form.validate_on_submit():
-        username = login_form.username.data
-        password = login_form.password.data
-        # print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
-        # print("%s:%s:%s" % (username, password, generate_password_hash('redhat')))
-        hs = generate_password_hash('redhat')
-        if check_password_hash(hs, 'redhat'):
-            print('ok')
-        else:
-            print('fail')
-
-        try:
-            user = User.query.filter(User.username == username).first()
-        except Exception as err:
-            msg = 'Cannot get user info!'
-            flash(msg, 'warning')
-            return render_template('login.html', form=login_form)
-        if user == None:
-            msg = 'Cannot get user info!'
-            flash(msg, 'warning')
-            return render_template('login.html', form=login_form)
-        # hash_password = generate_password_hash(password)
-        if not check_password_hash(user.password, password):
-            msg = 'Password not correct!'
-            flash(msg, 'warning')
-            return render_template('login.html', form=login_form)
-        else:
-            # user1 = User.query.get(login_form.username.data)
-            user.is_authenticated = True
-            login_user(user)
-
-            return redirect(url_for('main.index'))
-    else:
-        msg = 'Not login'
-        return render_template('login.html', form=login_form, msg=msg)
-
-
-@main.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect('/')
-
 
 @main.route('/show_chart', methods=['GET', 'POST'])
 def show_chart():

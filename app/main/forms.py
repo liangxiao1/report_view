@@ -9,6 +9,20 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password')
     submit = SubmitField("Login")
 
+class NewUserForm(FlaskForm):
+    username = TextField('UserName')
+    password = PasswordField('Password')
+    email = TextField('Email')
+    role = SelectField('Role', choices=[('admin', 'admin'),('user', 'user')])
+    submit = SubmitField("Create")
+
+class EditUserForm(FlaskForm):
+    username = TextField('UserName')
+    password = PasswordField('Password')
+    email = TextField('Email')
+    role = SelectField('Role', choices=[('admin', 'admin'),('user', 'user')])
+    submit = SubmitField("Update")
+    cancel = SubmitField("Cancel")
 
 class SearchForm(FlaskForm):
     search_input = TextField(

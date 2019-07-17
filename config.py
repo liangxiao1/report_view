@@ -17,5 +17,6 @@ class DevelopmentConfig(Config):
 config = {
     'development': DevelopmentConfig,
     'production': Config,
-    'default': DevelopmentConfig
+    'default': DevelopmentConfig,
+    'extend_existing': True
 }

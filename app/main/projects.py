@@ -15,7 +15,7 @@ from flask_login import LoginManager, login_user, login_required, current_user, 
 from bs4 import BeautifulSoup
 import urllib2
 
-from .db_class import ProjectMap,ProjectTab
+from .db_class import ProjectMap,ProjectTab,AppUser
 from . import libs
 
 @main.route('/initdb', methods=['GET','POST'])
@@ -23,6 +23,8 @@ def initdb():
     try:
         ProjectTab.__table__.create(report_db.get_engine())
         ProjectMap.__table__.create(report_db.get_engine())
+        #AppUser.__table__.drop(report_db.get_engine())
+        AppUser.__table__.create(report_db.get_engine())
         flash('Init db done','info')
     except Exception as err:
         flash(err,'error')
