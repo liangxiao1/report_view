@@ -4,6 +4,27 @@ from flask_login import UserMixin
 
 from .. import report_db
 
+class Report(report_db.Model):
+    __tablename__ = 'report_info'
+    log_id = Column(Integer, primary_key=True)
+    ami_id = Column(String)
+    instance_type = Column(String)
+    instance_available_date = Column(String)
+    compose_id = Column(String)
+    pkg_ver = Column(String)
+    bug_id = Column(String)
+    report_url = Column(String)
+    branch_name = Column(String)
+    cases_pass = Column(Integer)
+    cases_fail = Column(Integer)
+    cases_cancel = Column(Integer)
+    cases_other = Column(Integer)
+    cases_total = Column(Integer)
+    pass_rate = Column(Integer)
+    test_date = Column(String)
+    comments = Column(String)
+    sqlite_autoincrement = True
+
 class ProjectMap(report_db.Model):
     __tablename__ = 'project_map'
     project_id = Column(Integer, primary_key=True)

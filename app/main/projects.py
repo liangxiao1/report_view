@@ -21,10 +21,11 @@ from . import libs
 @main.route('/initdb', methods=['GET','POST'])
 def initdb():
     try:
-        ProjectTab.__table__.create(report_db.get_engine())
-        ProjectMap.__table__.create(report_db.get_engine())
+        #ProjectTab.__table__.create(report_db.get_engine())
+        #ProjectMap.__table__.create(report_db.get_engine())
         #AppUser.__table__.drop(report_db.get_engine())
-        AppUser.__table__.create(report_db.get_engine())
+        #AppUser.__table__.create(report_db.get_engine())
+        report_db.create_all()
         flash('Init db done','info')
     except Exception as err:
         flash(err,'error')

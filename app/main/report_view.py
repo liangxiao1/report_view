@@ -18,35 +18,13 @@ from bs4 import BeautifulSoup
 import urllib2
 from flask_googlecharts import GoogleCharts, ColumnChart, BarChart, LineChart
 
-from .db_class import ProjectMap
+from .db_class import ProjectMap, Report
 
 
 
 def daterange(date1, date2):
     for n in range(int((date2 - date1).days)+1):
         yield date1 + timedelta(n)
-
-class Report(report_db.Model):
-    __tablename__ = 'report_info'
-
-    log_id = Column(Integer, primary_key=True)
-    ami_id = Column(String)
-    instance_type = Column(String)
-    compose_id = Column(String)
-    instance_available_date = Column(String)
-    pkg_ver = Column(String)
-    bug_id = Column(String)
-    report_url = Column(String)
-    branch_name = Column(String)
-    cases_pass = Column(Integer)
-    cases_fail = Column(Integer)
-    cases_cancel = Column(Integer)
-    cases_other = Column(Integer)
-    cases_total = Column(Integer)
-    pass_rate = Column(Integer)
-    test_date = Column(String)
-    comments = Column(String)
-    sqlite_autoincrement = True
 
 
 @main.route('/', methods=['GET', 'POST'])
