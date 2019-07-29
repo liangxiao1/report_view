@@ -30,6 +30,8 @@
         {% if i !=  None %}
             {% if 'result' in i|string and 'http' in i|string %}
             <td><a href="{{ i }}">result</a></td>
+            {% elif 'http://' in i|string %}
+            <td><a href="{{ i }}">link</a></td>
             {% elif 'pass' in i|string|lower %}
             <td class="text-primary">{{ i }}</td>
             {% elif 'fail' in i|string|lower %}
@@ -102,6 +104,9 @@
             break;
           }
           if (Number.isInteger(Number(x.innerHTML.toLowerCase()))) {
+            continue;
+          }
+          if (Number.isFinite(Number(x.innerHTML.toLowerCase()))) {
             continue;
           }
 

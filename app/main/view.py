@@ -37,13 +37,12 @@ def view():
     per_page = request.args.get('per_page')
     if per_page is None and not session.has_key('per_page'):
         per_page = per_page_default
+        session['per_page'] = per_page
     elif per_page is None and session.has_key('per_page'):
         per_page = session['per_page']
     elif per_page is not None:
         session['per_page'] = per_page
 
-    print('xiliang2 per_page%s'%per_page)
-    print('xiliang3 session per_page%s' % session['per_page'])
     drop_list=libs.init_droplist(project_name)
 
     msg = ''
