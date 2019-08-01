@@ -96,6 +96,10 @@
             continue;
           }
 
+          if (Number.isFinite(Number(x.innerHTML.toLowerCase()))) {
+            continue;
+          }
+
           if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
             //if so, mark as a switch and break the loop:
             shouldSwitch = true;
