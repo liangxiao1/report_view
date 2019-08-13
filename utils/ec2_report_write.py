@@ -11,17 +11,24 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+log = logging.getLogger(__name__)
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(levelname)s:%(message)s')
+
 parser = argparse.ArgumentParser(description="Write results to local db")
 parser.add_argument('--dir', dest='log_dir', action='store',
                     help="specify log directory", default=None, required=True)
+parser.add_argument('--db_file', dest='db_file', action='store',
+                    help="specify database location", default=None, required=True)
 parser.add_argument("--ami-id", dest='ami_id', action='store',
-                    help="specify ami id", default=None, required=True)
+                    help="specify ami id", default=None, required=False)
 parser.add_argument("--compose-id", dest='compose_id', action='store',
                     help="specify compose id if have", default=None, required=False)
 parser.add_argument("--instance_available_date", dest='instance_available_date', action='store',
                     help="specify it if it is new", default=None, required=False)
 parser.add_argument("--pkg_ver", dest='pkg_ver', action='store',
-                    help="specify pkg version, like kernel or others", default=None, required=True)
+                    help="specify pkg version, like kernel or others", default=None, required=False)
 parser.add_argument("--bug-id", dest='bug_id', action='store',
                     help="specify bug id if have", default=None, required=False)
 parser.add_argument("--report_url", dest='report_url', action='store',
@@ -33,7 +40,7 @@ parser.add_argument("--comments", dest='comments', action='store',
 args = parser.parse_args()
 
 
-db_engine = create_engine('sqlite:///report_data.db', echo=True)
+db_engine = create_engine('sqlite:///%s' % args.db_file, echo=True)
 db_session = sessionmaker(bind=db_engine)
 Base = declarative_base()
 
@@ -62,6 +69,35 @@ class Report(Base):
 
 def report_writer():
     instances_sub_report = {}
+    log_xml = args.log_dir+"/results.xml"
+    if args.ami_id is None:
+        ami_id = None
+        log.info('no ami_id specified, try to get it from log')
+        with open(log_xml) as fh:
+            for line in fh.readlines():
+                ami_ids = re.findall("ami-.*",line)
+                if len(ami_ids) > 0:
+                    ami_id = ami_ids[0].strip("'")
+                    log.info('find %s' % ami_id)
+                    break
+        if ami_id is None:
+            log.info('cannot get ami_id, exit!')
+            sys.exit(1)
+        args.ami_id = ami_id
+    if args.pkg_ver is None:
+        pkg_ver = None
+        log.info('no pkg_ver specified, try to get it from log, use kernel version instead')
+        with open(log_xml) as fh:
+            for line in fh.readlines():
+                pkg_vers = re.findall("\d.\d{1,2}.\d{1,4}-.*64",line)
+                if len(pkg_vers) > 0:
+                    pkg_ver = pkg_vers[0].strip("'")
+                    log.info('find %s' % pkg_ver)
+                    break
+        if pkg_ver is None:
+            log.info('cannot get pkg_ver, exit!')
+            sys.exit(1)
+        args.pkg_ver = 'kernel-'+pkg_ver
     log_json = args.log_dir+"/results.json"
     with open(log_json, 'r') as fh:
         report_dict = json.load(fh)
