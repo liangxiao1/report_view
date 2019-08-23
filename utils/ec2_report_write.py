@@ -89,9 +89,10 @@ def report_writer():
         log.info('no pkg_ver specified, try to get it from log, use kernel version instead')
         with open(log_xml) as fh:
             for line in fh.readlines():
-                pkg_vers = re.findall("\d.\d{1,2}.\d{1,4}-.*64",line)
+                pkg_vers = re.findall(":\d.\d{1,2}.\d{1,4}-.*64",line)
                 if len(pkg_vers) > 0:
                     pkg_ver = pkg_vers[0].strip("'")
+                    pkg_ver = pkg_vers[0].strip(":")
                     log.info('find %s' % pkg_ver)
                     break
         if pkg_ver is None:
