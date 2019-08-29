@@ -50,7 +50,7 @@ class UpdateItemForm(FlaskForm):
     instance_type = TextField('instance_type', render_kw={'readonly': True})
     compose_id = TextField('compose_id', render_kw={'readonly': True})
     instance_available_date = TextField('instance_available_date')
-    pkg_ver = TextField('pkg_ver', render_kw={'readonly': True})
+    pkg_ver = TextField('pkg_ver', render_kw={'readonly': False})
     bug_id = TextField('bug_id')
     report_url = TextField('report_url')
     branch_name = TextField('branch_name')
