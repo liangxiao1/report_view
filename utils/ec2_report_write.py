@@ -76,7 +76,7 @@ def report_writer():
         with open(log_xml) as fh:
             for line in fh.readlines():
                 ami_ids = re.findall("ami-.*",line)
-                if len(ami_ids) > 0:
+                if len(ami_ids) > 0 and 'ami_id' in line:
                     ami_id = ami_ids[0].strip("'")
                     log.info('find %s' % ami_id)
                     break
