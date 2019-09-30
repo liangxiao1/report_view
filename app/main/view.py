@@ -92,7 +92,7 @@ def view():
     items_dict = {}
     items_list = libs.init_project_titles(project_name)
     data_list = [ProjectTab.project_id,ProjectTab.project_name,ProjectTab.field_1,\
-            ProjectTab.field_2,ProjectTab.field_3,ProjectTab.field_4,ProjectTab.field_5,ProjectTab.field_1,\
+            ProjectTab.field_2,ProjectTab.field_3,ProjectTab.field_4,ProjectTab.field_5,\
         ProjectTab.field_6,ProjectTab.field_7,ProjectTab.field_8,ProjectTab.field_9,ProjectTab.field_10,\
         ProjectTab.field_11,ProjectTab.field_12,ProjectTab.field_13,ProjectTab.field_14,ProjectTab.field_15,\
         ProjectTab.field_16,ProjectTab.field_17,ProjectTab.field_18,ProjectTab.field_19,ProjectTab.field_20]
